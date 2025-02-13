@@ -11,6 +11,8 @@ export default {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        nihonred : "#FF6B6B",
+        nihonwhite : '#F5F5F5'
       },
     },
   },
