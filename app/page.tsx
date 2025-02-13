@@ -1,5 +1,5 @@
 export default function Home() {
   return (
-        <div className="bg-red-500">아 응애</div>
+    <h1>Home</h1>
   );
 }
