@@ -17,7 +17,7 @@ const CertificateCard: React.FC<CertificateCardProps> = ({ level }) => {
       onMouseLeave={() => setIsHovered(false)}
     >
       {!isHovered ? (
-        // 기본 상태 (단순 텍스트)
+        // 기본 상태 (자격증 단계)
         <span>{level}</span>
       ) : (
         // Hover 상태 (단어/문법 선택 가능)

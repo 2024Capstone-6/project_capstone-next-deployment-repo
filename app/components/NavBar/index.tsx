@@ -9,7 +9,7 @@ const navItems = [
   { name: "프로필", path: "/profile", icon: "/profile.png", isProfile: true },
 ];
 
-export default function Navbar() {
+export default function NavBar() {
   return (
     <div className="fixed top-0 left-0 h-screen bg-nihonred text-white flex flex-col justify-between w-[87px] xl:w-64 transition-all duration-300">
       <nav className="ml-7 pt-8">
@@ -38,7 +38,7 @@ export default function Navbar() {
         </ul>
       </nav>
 
-      {/* 미니 프로필 (xl 이상에서) */}
+      {/* 미니 프로필 (xl 이하에서 숨김) */}
       <div className="hidden xl:flex p-3 mb-7 ml-0.5">
         <Link href={"/profile"}>
           <div className="w-56 bg-red-300 p-3 rounded-lg text-start hover:shadow-md transition-all duration-300 flex flex-col">
