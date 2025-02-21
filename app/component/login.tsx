@@ -1,35 +1,55 @@
 "use client"
 
+import { useRouter } from "next/navigation"
 import { useState } from "react"
 import cookies from "react-cookies"
+
 
 export default function LoginCompo(){
   const [showPassword,setShowPassword] = useState(false)
   const [email,setEmail]=useState('')
   const [password,setPassword]=useState('')
+  const [failedLogin,setFailedLogin]= useState(false)
+  const router = useRouter()
 
   const LoginHandler = async() =>{
-    const data = await fetch("http://localhost:4000/auth/login",{
+    const res = await fetch("http://localhost:4000/auth/login",{
       method:"POST",
-      body:JSON.stringify({"email" :email,"password":password})
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({"email": email, "password": password})
     })
-    .then(res=>res.json())
     // 현재시간 받아옴.
     // 현재시간 +60분만큼 유효시간으로 지정정
-    const access_time = new Date()
-    access_time.setMinutes(access_time.getMinutes()+60)
-    // 쿠키 저장 이름, 쿠키저장 값, 옵션 path:'/'는 모든곳에서 쿠키사용, expires는 유효시간
-    cookies.save('token',data.token,{path:'/',expires:access_time})
+    if(res.ok){
+      console.log('ok')
+      const data = await res.json()
+      console.log(data)
+      const access_time = new Date()
+      access_time.setMinutes(access_time.getMinutes()+60)
+      // 쿠키 저장 이름, 쿠키저장 값, 옵션 path:'/'는 모든곳에서 쿠키사용, expires는 유효시간
+      cookies.save('token',data.token,{path:'/',expires:access_time})
+      router.push('/')
+    }
+    else{
+      setFailedLogin(true)
+    }
     
   }
+
+  const goSignUp = () =>{
+    router.push('/register')
+  }
+
 
   return(
     <div className="w-[50%] min-w-[300px]  bg-white p-8 rounded-lg shadow-lg mx-[25%]">
           <label className="block mb-2 text-sm font-semibold">Email</label>
           <input type="email" className="w-full p-3 border rounded mb-4" placeholder="Enter your email" onChange={(e)=>{setEmail(e.target.value)}}/>
-
           <label className="block mb-2 text-sm font-semibold">Password</label>
           <div className="relative mb-5">
+              
             <input
               type={showPassword ? 'text' : 'password'}
               className="w-full p-3 border rounded"
@@ -44,10 +64,12 @@ export default function LoginCompo(){
               👁
             </button>
           </div>
-
+          <div className="flex justify-center text-red-600 m-1">
+            {failedLogin ? 'check your email & password':''}
+          </div>
           <button type='submit' className="w-full mt-2 bg-red-500 text-white p-3 rounded font-semibold" onClick={LoginHandler}>Login</button>
           
-          <button className="w-full mt-2 border p-3 rounded font-semibold">Sign Up</button>
+          <button className="w-full mt-2 border p-3 rounded font-semibold" onClick={goSignUp}>Sign Up</button>
 
           <div className="flex items-center my-6">
             <div className="flex-grow border-t"></div>
