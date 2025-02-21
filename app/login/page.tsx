@@ -1,4 +1,4 @@
-import LoginCompo from "./component/login";
+import LoginCompo from "../component/login";
 
 
 export default function LoginPage() {
