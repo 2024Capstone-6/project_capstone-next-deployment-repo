@@ -3,25 +3,25 @@ import Image from "next/image";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function WordPage() {
+export default function GrammarPage() {
   const router = useRouter();
 
-  const dummyWords = [
-    { index: 0, word: "即ち", furigana: "すなわち", mean: "즉" },
-    { index: 1, word: "勉強", furigana: "べんきょう", mean: "공부" },
-    { index: 2, word: "楽しい", furigana: "たのしい", mean: "즐겁다" },
+  const dummyGrammars = [
+    { index: 0, word: "~恐れがある", furigana: "(~おそれがある)", mean: "“~할 우려가 있다.”, “~할 염려가 있다.”",
+      example: "地震による津波の恐れがありますので、高台に避難してください。", exMean: "지진으로 인해 쓰나미가 올 우려가 있으니, 높은 곳으로 대피하세요." },
+    { index: 1, word: "~べき", mean: "해야 한다.", example: "もっと努力すべきだ。", exMean: "더 노력해야 한다." },
   ];
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [visibility, setVisibility] = useState({
-    furigana: false,
+    explanation: false,
     mean: false,
     workbook: false,
   });
 
-  const toggleVisibility = (key: "furigana" | "mean" | "workbook") => {
+  const toggleVisibility = (key: "explanation" | "mean" | "workbook") => {
     setVisibility((prev) => ({
       ...prev,
       [key]: !prev[key]
@@ -29,17 +29,17 @@ export default function WordPage() {
   };
 
   const handleNextWord = () => {
-    if (currentIndex < dummyWords.length - 1) {
+    if (currentIndex < dummyGrammars.length - 1) {
       setCurrentIndex((prevIndex) => prevIndex + 1);
-      setVisibility({ furigana: false, mean: false, workbook: false });
+      setVisibility({ explanation: false, mean: false, workbook: false });
     } else {
-      setIsModalOpen(true); // 마지막 단어에서 모달 열기
+      setIsModalOpen(true);
     }
   };
 
   const restartLearning = () => {
     setCurrentIndex(0);
-    setVisibility({ furigana: false, mean: false, workbook: false });
+    setVisibility({ explanation: false, mean: false, workbook: false });
     setIsModalOpen(false);
   };
 
@@ -52,10 +52,10 @@ export default function WordPage() {
           <p>검색창</p>
         </div>
 
-        {/* 단어 학습 카드 및 단어장 추가 박스 영역 */}
+        {/* 문법 학습 카드 및 단어장 추가 박스 영역 */}
         <div className="relative flex flex-col items-center mt-4 w-[800px]">
 
-          {/* 단어 학습 카드 */}
+          {/* 문법 학습 카드 */}
           <div className="h-[500px] w-full rounded-lg flex flex-col items-center justify-center border-2 border-nihonred relative">
 
             {/* 북마크 버튼 */}
@@ -67,12 +67,16 @@ export default function WordPage() {
             </button>
 
             {/* 본문 내용 */}
-            {visibility.furigana && (
-              <p className="text-nihonred text-3xl">{dummyWords[currentIndex].furigana}</p>
+            <p className="text-nihonred text-7xl font-bold">{dummyGrammars[currentIndex].word}</p>
+            {dummyGrammars[currentIndex].furigana && (
+              <p className="text-nihonred text-7xl">{dummyGrammars[currentIndex].furigana}</p>
             )}
-            <p className="text-black text-8xl font-bold">{dummyWords[currentIndex].word}</p>
             {visibility.mean && (
-              <p className="text-nihonred text-3xl font-semibold pt-3">{dummyWords[currentIndex].mean}</p>
+              <>
+                <p className="text-3xl font-semibold pt-4">{dummyGrammars[currentIndex].mean}</p>
+                <p className="text-2xl font-semibold pt-4 pl-4">{dummyGrammars[currentIndex].example}</p>
+                <p className="text-xl">{dummyGrammars[currentIndex].exMean}</p>
+              </>
             )}
           </div>
 
@@ -93,8 +97,8 @@ export default function WordPage() {
               의미
             </button>
             <button className="w-[180px] h-[45px] font-bold border-2 border-nihonred rounded-lg"
-              onClick={() => toggleVisibility("furigana")}>
-              히라가나
+              onClick={() => toggleVisibility("explanation")}>
+              설명
             </button>
             <button className="w-[180px] h-[45px] bg-red-400 text-white font-bold rounded-lg"
               onClick={handleNextWord}>
