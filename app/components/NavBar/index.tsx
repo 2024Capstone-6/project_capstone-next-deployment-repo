@@ -4,10 +4,11 @@ import Image from "next/image";
 import classNames from "classnames";
 
 const navItems = [
-  { name: "단어/문법", path: "/dashboard/vocabulary", icon: "/book.png" },
-  { name: "회화 연습", path: "/dashboard/conversation", icon: "/conversation.png" },
-  { name: "그룹 게임", path: "/dashboard/group-games", icon: "/game.png" },
-  { name: "게시판", path: "/dashboard/board", icon: "/board.png" },
+  { name: "단어/문법", path: "/dashboard/vocabulary", icon: "/navbar/book.png" },
+  { name: "회화 연습", path: "/dashboard/conversation", icon: "/navbar/conversation.png" },
+  { name: "그룹 게임", path: "/dashboard/group-games", icon: "/navbar/game.png" },
+  { name: "게시판", path: "/dashboard/board", icon: "/navbar/board.png" },
+  { name: "프로필", path: "/dashboard/profile", icon: "/navbar/profile.png"},
 ];
 
 export default function NavBar() {
@@ -19,7 +20,7 @@ export default function NavBar() {
           href={"/dashboard/vocabulary"}
           className="flex items-center space-x-3 text-white font-bold text-2xl transition-all duration-300"
         >
-          <Image src="/clover.png" alt="Logo" width={32} height={32} priority />
+          <Image src="/navbar/clover.png" alt="Logo" width={32} height={32} priority />
           <span className="hidden xl:inline">NihonClover</span>
         </Link>
 
@@ -52,7 +53,7 @@ export default function NavBar() {
             )}
           >
             <div className="flex items-center">
-              <Image src="/profile.png" alt="프로필 아이콘" width={40} height={40} priority />
+              <Image src="/navbar/profile.png" alt="프로필 아이콘" width={40} height={40} priority />
               <p className="font-bold ml-1">박유진</p>
             </div>
             <p className="text-sm mt-1 ml-1">dbwls437711@naver.com</p>

@@ -117,7 +117,7 @@ export default function GrammarPage() {
               <button className="px-6 py-2 bg-red-400 text-white rounded-lg font-bold" onClick={restartLearning}>
                 다시 학습
               </button>
-              <button className="px-6 py-2 bg-gray-300 rounded-lg font-bold" onClick={() => router.push("/vocabulary")}>
+              <button className="px-6 py-2 bg-gray-300 rounded-lg font-bold" onClick={() => router.push("/dashboard/vocabulary")}>
                 메인으로
               </button>
             </div>
