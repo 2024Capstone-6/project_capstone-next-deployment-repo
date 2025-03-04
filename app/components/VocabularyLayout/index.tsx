@@ -24,15 +24,15 @@ export default function VocabularyLayout({ words }: VocabularyLayoutProps) {
     workbook: false,
   });
 
-  // ✅ 현재 단어 가져오기 (단어가 없을 경우 기본값 방어)
+  // 현재 단어 가져오기 (단어가 없을 경우 기본값 방어)
   const currentWord = words[currentIndex] || { word: "", word_furigana: "", word_meaning: "" };
 
-  // ✅ 단어장 추가 버튼
+  // 단어장 추가 버튼
   const toggleVisibility = (key: "furigana" | "mean" | "workbook") => {
     setVisibility((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
-  // ✅ 다음 단어 보기
+  // 다음 단어 보기
   const handleNextWord = () => {
     if (currentIndex < words.length - 1) {
       setCurrentIndex((prevIndex) => prevIndex + 1);
@@ -42,7 +42,7 @@ export default function VocabularyLayout({ words }: VocabularyLayoutProps) {
     }
   };
 
-  // ✅ 다시 학습 버튼 클릭 시 랜덤 섞기
+  // 다시 학습 버튼 클릭 시 랜덤 섞기
   const restartLearning = () => {
     setCurrentIndex(0);
     setVisibility({ furigana: false, mean: false, workbook: false });

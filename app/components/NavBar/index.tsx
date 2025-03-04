@@ -8,6 +8,7 @@ const navItems = [
   { name: "회화 연습", path: "/dashboard/conversation", icon: "/navbar/conversation.png" },
   { name: "그룹 게임", path: "/dashboard/group-games", icon: "/navbar/game.png" },
   { name: "게시판", path: "/dashboard/board", icon: "/navbar/board.png" },
+  { name: "단어장", path: "/dashboard/wordbook", icon: "/navbar/wordbook.png"},
   { name: "프로필", path: "/dashboard/profile", icon: "/navbar/profile.png"},
 ];
 
