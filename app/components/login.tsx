@@ -23,13 +23,12 @@ export default function LoginCompo(){
     // 현재시간 받아옴.
     // 현재시간 +60분만큼 유효시간으로 지정정
     if(res.ok){
-      console.log('ok')
       const data = await res.json()
-      console.log(data)
       const access_time = new Date()
       access_time.setMinutes(access_time.getMinutes()+60)
       // 쿠키 저장 이름, 쿠키저장 값, 옵션 path:'/'는 모든곳에서 쿠키사용, expires는 유효시간
-      cookies.save('token',data.token,{path:'/',expires:access_time})
+      cookies.save('token',data,{path:'/',expires:access_time})
+      console.log(data)
       router.push('/')
     }
     else{
@@ -40,6 +39,10 @@ export default function LoginCompo(){
 
   const goSignUp = () =>{
     router.push('/register')
+  }
+
+  const findHandler = ()=>{
+    router.push('/finduser')
   }
 
 
@@ -84,7 +87,7 @@ export default function LoginCompo(){
             카카오톡으로 시작하기
           </button>
           
-          <p className="mt-4 text-sm text-red-500 cursor-pointer text-center">이메일/비밀번호 찾기</p>
+          <p className="mt-4 text-sm text-red-500 cursor-pointer text-center" onClick={findHandler}>이메일/비밀번호 찾기</p>
         </div>
   )
 }
