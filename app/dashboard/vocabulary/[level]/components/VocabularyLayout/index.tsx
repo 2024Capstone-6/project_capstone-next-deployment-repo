@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import React, { useState } from "react";
-import Modal from "@/app/components/Modal";
+import Modal from "../Modal";
 
 interface Word {
   word_id: number;

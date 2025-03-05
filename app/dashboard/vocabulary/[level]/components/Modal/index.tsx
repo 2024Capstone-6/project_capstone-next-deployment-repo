@@ -13,7 +13,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onRestart }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white p-6 rounded-lg shadow-lg text-center">
         <p className="text-lg font-semibold mb-4">학습이 끝났습니다.</p>
         <div className="flex justify-center gap-4">

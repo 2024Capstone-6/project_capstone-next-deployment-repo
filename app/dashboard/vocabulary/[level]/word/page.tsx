@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import VocabularyLayout from "@/app/components/VocabularyLayout";
+import VocabularyLayout from "../components/VocabularyLayout";
 
 interface Word {
   word_id: number;
@@ -18,6 +18,7 @@ export default function WordPage() {
   const [words, setWords] = useState<Word[]>([]);
   const level = decodeURIComponent(levelRaw).replace("JLPT ", "").trim();
 
+  // 마지막 단어에서 랜덤 셔플이 안되는 듯함
   useEffect(() => {
     const fetchWords = async () => {
       try {
