@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import cookies from "react-cookies"
@@ -80,9 +81,7 @@ export default function LoginCompo(){
             <div className="flex-grow border-t"></div>
           </div>
 
-          <button className="w-full flex items-center justify-center border p-3 rounded mb-2 font-semibold">
-            Google로 시작하기
-          </button>
+          <Link className="w-full flex items-center justify-center border p-3 rounded mb-2 font-semibold" href='http://localhost:4000/auth/google'>Google로 시작하기</Link>
           <button className="w-full flex items-center justify-center bg-yellow-400 p-3 rounded font-semibold">
             카카오톡으로 시작하기
           </button>
