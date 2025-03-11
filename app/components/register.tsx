@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation"
 import { useState } from "react"
 
 
-export default function register(){
+export default function Register(){
   const [showPassword,setShowPassword] = useState(false)
   const [showCheckPassword,setShowCheckPassword] = useState(false)
   const [name,setName]=useState('')

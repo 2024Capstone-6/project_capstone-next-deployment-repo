@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation"
 
-export default function finduser(){
+export default function Finduser(){
   const route = useRouter()
   const goForgotID = () =>{
     route.push("./finduser/forgotID")
