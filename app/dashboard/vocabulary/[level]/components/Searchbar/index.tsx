@@ -1,36 +1,37 @@
 import React, { useState } from "react";
 import { FiSearch } from "react-icons/fi"; // 돋보기 아이콘 추가
 
-interface Word {
-  word_id: number;
-  word: string;
-  word_furigana: string;
-  word_meaning: string;
-  word_level: string;
+// ✅ 단어와 문법을 하나의 공통 타입으로 통합
+interface SearchItem {
+  id: number;
+  mainText: string;
+  furigana?: string;
+  meaning: string;
 }
 
+// ✅ SearchbarProps 수정
 interface SearchbarProps {
-  searchWords: Word[];
-  onSelectWord: (selectedWordId: number) => void; // 🔹 클릭한 단어의 ID를 넘기는 함수
+  searchItems: SearchItem[]; // 🔹 단어 또는 문법 목록
+  onSelectItem: (selectedItemId: number) => void; // 🔹 선택한 아이템의 ID 전달
 }
 
-export default function Searchbar({ searchWords, onSelectWord }: SearchbarProps) {
+export default function Searchbar({ searchItems, onSelectItem }: SearchbarProps) {
   const [searchTerm, setSearchTerm] = useState("");
-  const [filteredWords, setFilteredWords] = useState<Word[]>([]);
+  const [filteredItems, setFilteredItems] = useState<SearchItem[]>([]);
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     const query = event.target.value;
     setSearchTerm(query);
 
     if (query.trim() === "") {
-      setFilteredWords([]);
+      setFilteredItems([]);
     } else {
-      setFilteredWords(
-        searchWords.filter(
-          (word) =>
-            word.word.includes(query) ||
-            word.word_furigana.includes(query) ||
-            word.word_meaning.includes(query)
+      setFilteredItems(
+        searchItems.filter(
+          (item) =>
+            item.mainText.includes(query) ||
+            (item.furigana && item.furigana.includes(query)) ||
+            item.meaning.includes(query)
         )
       );
     }
@@ -44,7 +45,7 @@ export default function Searchbar({ searchWords, onSelectWord }: SearchbarProps)
       {/* 검색 입력창 */}
       <input
         type="text"
-        placeholder="단어 검색"
+        placeholder="검색"
         value={searchTerm}
         onChange={handleSearch}
         className="flex-1 outline-none bg-transparent"
@@ -53,18 +54,18 @@ export default function Searchbar({ searchWords, onSelectWord }: SearchbarProps)
       {/* 연관 검색어 리스트 */}
       {searchTerm.trim() !== "" && (
         <ul className="absolute left-0 top-full w-full bg-white border border-gray-300 rounded-md shadow-lg mt-1 max-h-[200px] overflow-y-auto z-10">
-          {filteredWords.length > 0 ? (
-            filteredWords.map((word) => (
+          {filteredItems.length > 0 ? (
+            filteredItems.map((item) => (
               <li
-                key={word.word_id}
+                key={item.id}
                 className="px-4 py-2 hover:bg-gray-100 cursor-pointer transition-all"
                 onClick={() => {
-                  onSelectWord(word.word_id); // 🔹 클릭한 단어의 ID 전달
+                  onSelectItem(item.id); // 🔹 선택한 아이템 ID 전달
                   setSearchTerm(""); // 🔹 검색창 초기화
-                  setFilteredWords([]); // 🔹 연관 검색어 숨김
+                  setFilteredItems([]); // 🔹 연관 검색어 숨김
                 }}
               >
-                {word.word}: {word.word_meaning} - {word.word_furigana}
+                {item.mainText}: {item.meaning} {item.furigana && `- ${item.furigana}`}
               </li>
             ))
           ) : (

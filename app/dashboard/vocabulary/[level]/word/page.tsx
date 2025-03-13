@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import VocabularyLayout from "../components/VocabularyLayout";
+import WordLayout from "../components/WordLayout";
 
 interface Word {
   word_id: number;
@@ -48,5 +48,5 @@ export default function WordPage() {
     setWords(shuffleArray([...words])); // 🔹 기존 단어를 다시 섞음
   };
 
-  return <VocabularyLayout words={words} onRestart={restartLearning} />;
+  return <WordLayout words={words} onRestart={restartLearning} />;
 }

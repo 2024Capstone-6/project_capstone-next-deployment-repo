@@ -12,12 +12,12 @@ interface Word {
   word_level: string;
 }
 
-interface VocabularyLayoutProps {
+interface WordLayoutProps {
   words: Word[];
   onRestart: () => void;
 }
 
-export default function VocabularyLayout({ words, onRestart }: VocabularyLayoutProps) {
+export default function WordLayout({ words, onRestart }: WordLayoutProps) {
   const [wordList, setWordList] = useState<Word[]>(words);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -27,7 +27,7 @@ export default function VocabularyLayout({ words, onRestart }: VocabularyLayoutP
     workbook: false,
   });
 
-  // ✅ 단어 리스트 업데이트 (초기 로딩 시 & 단어 변경 시 실행)
+  // 단어 리스트 업데이트 (초기 로딩 시 & 단어 변경 시 실행)
   useEffect(() => {
     if (words.length > 0) {
       setWordList(words);
@@ -37,47 +37,45 @@ export default function VocabularyLayout({ words, onRestart }: VocabularyLayoutP
     }
   }, [words]);
 
-  // ✅ 연관 검색어에서 단어 선택 시 단어 이동
+  // 검색 시 선택한 단어를 현재 위치로 이동하고 기존 단어를 뒤로 보냄 (즉시 반영)
   const handleSelectWord = (selectedWordId: number) => {
+  
     setWordList((prevWords) => {
       const newWords = [...prevWords];
       const currentWordIndex = currentIndex;
-      const selectedWordIndex = newWords.findIndex((word) => word.word_id === selectedWordId);
-
+      const selectedWordIndex = newWords.findIndex((w) => w.word_id === selectedWordId);
+  
       if (selectedWordIndex === -1 || currentWordIndex === selectedWordIndex) {
         return prevWords;
       }
-
-      // 기존 단어를 10번째 뒤로 이동
-      const movedWord = newWords[currentWordIndex];
-      let newMoveIndex = currentWordIndex + 10;
-      if (newMoveIndex >= newWords.length) {
-        newMoveIndex = newWords.length - 1;
-      }
-
-      newWords.splice(currentWordIndex, 1);
-      newWords.splice(newMoveIndex, 0, movedWord);
-
-      // 선택한 단어를 현재 위치로 이동
-      const selectedWord = newWords[selectedWordIndex];
-      newWords.splice(selectedWordIndex, 1);
-      newWords.splice(currentWordIndex, 0, selectedWord);
-
+  
+      // 선택한 문법을 배열에서 제거
+      const selectedWord = newWords.splice(selectedWordIndex, 1)[0];
+  
+      // 현재 문법이 앞에 있는 문법인지 확인
+      const isPastWord = selectedWordIndex < currentWordIndex;
+  
+      // 기존 문법이 뒤로 밀리지 않도록, 기존 위치에 정확히 삽입
+      const newInsertIndex = isPastWord ? currentWordIndex : currentWordIndex + 1;
+      newWords.splice(newInsertIndex, 0, selectedWord);
+  
+      // 선택한 문법을 학습 카드에 즉시 반영 (강제 적용)
+      setCurrentIndex(newInsertIndex);
+  
       return newWords;
     });
-
-    // ✅ 의미, 히라가나, 단어장 상태 초기화
+  
+    // 🔹 선택한 문법이 즉시 학습 카드에 반영되도록 설정
     setVisibility({ furigana: false, mean: false, workbook: false });
-    setCurrentIndex(currentIndex);
   };
 
-  // ✅ 다음 단어 보기 (마지막 단어 시 모달 띄우기)
+  // 다음 단어 보기 (마지막 단어 시 모달 띄우기)
   const handleNextWord = () => {
     if (currentIndex < wordList.length - 1) {
       setCurrentIndex((prevIndex) => prevIndex + 1);
-      setVisibility({ furigana: false, mean: false, workbook: false }); // ✅ 상태 초기화
+      setVisibility({ furigana: false, mean: false, workbook: false }); // 상태 초기화
     } else {
-      setIsModalOpen(true); // ✅ 마지막 단어일 때 모달 열기
+      setIsModalOpen(true); // 마지막 단어일 때 모달 열기
     }
   };
 
@@ -85,7 +83,16 @@ export default function VocabularyLayout({ words, onRestart }: VocabularyLayoutP
     <div className="flex h-screen">
       <div className="flex-1 flex flex-col items-center justify-center min-w-[980px] max-w-[980px] min-h-[680px]">
         {/* 검색창 */}
-        <Searchbar searchWords={wordList} onSelectWord={handleSelectWord} />
+        <Searchbar
+          searchItems={wordList.map((word) => ({
+            id: word.word_id,
+            mainText: word.word,
+            furigana: word.word_furigana,
+            meaning: word.word_meaning,
+          }))}
+          onSelectItem={handleSelectWord}
+        />
+
 
         {/* 단어 학습 카드 */}
         <div className="relative flex flex-col items-center mt-4 w-[800px]">
@@ -97,17 +104,17 @@ export default function VocabularyLayout({ words, onRestart }: VocabularyLayoutP
               <Image src={"/bookmark/bookmark.png"} alt="bookmark" width={30} height={30} unoptimized />
             </button>
 
-            {/* ✅ 단어가 존재할 때만 렌더링하여 오류 방지 */}
+            {/* 단어가 존재할 때만 렌더링하여 오류 방지 */}
             {wordList.length > 0 && (
               <>
                 {visibility.furigana && <p className="text-nihonred text-4xl">{wordList[currentIndex].word_furigana}</p>}
-                <p className="text-black text-7xl font-bold">{wordList[currentIndex].word}</p>
-                {visibility.mean && <p className="text-nihonred text-4xl font-semibold pt-3">{wordList[currentIndex].word_meaning}</p>}
+                <p className="text-nihonred text-7xl font-bold">{wordList[currentIndex].word}</p>
+                {visibility.mean && <p className="text-black text-4xl font-semibold pt-3">{wordList[currentIndex].word_meaning}</p>}
               </>
             )}
           </div>
 
-          {/* ✅ 단어장 추가 박스 (다시 추가) */}
+          {/* 단어장 추가 박스 (다시 추가) */}
           {visibility.workbook && (
             <div className="absolute right-[-170px] top-0 w-[160px] h-[120px] rounded-lg p-2 flex items-center justify-center border-2 border-nihonred">
               <p>단어장 추가 박스</p>
