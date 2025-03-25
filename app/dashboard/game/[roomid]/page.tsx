@@ -8,32 +8,21 @@
 // 채팅?
 
 
-// "use client"
-// import { useSocket } from "@/app/context/context";
-// import React, { useEffect, useState } from "react";
 
 
-export default async function RoomDetail({params}:{params:Promise<{roomid:string}>}){
-  // const {roomid} = React.use(params) // 내 파라미터 받아오는 최신문법
-  const roomid = (await params).roomid
-  // const [players,setPlayers]=useState([])
-  // const socket = useSocket()
+import GameRoom from "@/app/components/GameRoom"
+import React from "react"
 
-  // useEffect(()=>{
+export default function RoomDetail({params}:{params:Promise<{roomid:string}>}){
+  const {roomid} = React.use(params) // 내 파라미터 받아오는 최신문법
 
-  //   socket.on("update_players", (players) => setPlayers(players));
 
-  //   return (()=>{
-  //     socket.off("update_players");
-  //   })
-  // },[])
-
-  const startGame = () =>{
     
-  }
+  
   return(
     <div>
       <h1>RoomId :{roomid}</h1>
+      <GameRoom roomid={roomid}></GameRoom>
     </div>
   )
 }
