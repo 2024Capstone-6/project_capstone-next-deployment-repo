@@ -1,5 +1,6 @@
 "use client"
 
+import customFetch from "@/util/custom-fetch"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 
@@ -52,13 +53,11 @@ export default function Register(){
     }
   }
   
+
+
   const signUpHandler= async ()=>{
-    const res = await fetch("http://localhost:4000/auth/signup",{
+    const res = await customFetch("/auth/signup",{
       method:"POST",    
-      headers: {
-        "Content-Type": "application/json"
-      },
-      mode:"cors",
       body: JSON.stringify({
         //"name":name,
         "email":email,"password":password,"name":name})
@@ -68,8 +67,7 @@ export default function Register(){
       router.push('/login')
     }
     else{
-      const data=await res.json()
-      alert(data.errors)
+      alert('이메일이 중복되었습니다.')
     }
   }
     
