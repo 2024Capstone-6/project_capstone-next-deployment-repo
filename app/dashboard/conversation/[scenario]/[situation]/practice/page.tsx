@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
-import ChatWindow from "../components/ChatWindow";
-import ChatHeader from "../components/ChatHeader";
+import ChatWindow from "@/app/components/ChatWindow";
+import ChatHeader from "@/app/components/ChatHeader";
 
 export default function PracticePage() {
   return (

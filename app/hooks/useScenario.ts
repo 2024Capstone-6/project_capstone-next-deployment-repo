@@ -1,27 +1,38 @@
 "use client";
 import { useEffect, useState } from "react";
 
-interface Scenario {
-  chatbot_message: string;
+interface Choice {
+  text: string;
+  reason: string;
+  is_correct: boolean;
 }
 
-export function useScenario(scenarioId: number) {
-  const [scenario, setScenario] = useState<Scenario | null>(null);
+export interface Question {
+  qna_id: number;
+  chatbot_question: string;
+  kr_answer: string;
+  blank_answer: string;
+  order_index: number;
+  choices: Choice[];
+}
+
+export function useScenario(situationId: number) {
+  const [questions, setQuestions] = useState<Question[] | null>(null);
 
   useEffect(() => {
-    async function fetchScenario() {
+    const fetchScenario = async () => {
       try {
-        const response = await fetch(`http://localhost:4000/chatbot/scenario/${scenarioId}`);
-        if (!response.ok) return;
-        const data: Scenario = await response.json();
-        setScenario(data);
-      } catch (err) {
-        console.error("데이터 불러오기 실패:", err);
+        const res = await fetch(`http://localhost:4000/chatbot/questions/${situationId}`);
+        const data: Question[] = await res.json();
+        setQuestions(data);
+      } catch (error) {
+        console.error("시나리오 질문 불러오기 실패:", error);
+        setQuestions(null);
       }
-    }
+    };
 
-    fetchScenario();
-  }, [scenarioId]);
+    if (situationId) fetchScenario();
+  }, [situationId]);
 
-  return scenario;
+  return questions;
 }

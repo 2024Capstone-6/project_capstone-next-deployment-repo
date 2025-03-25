@@ -1,48 +1,73 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import classNames from "classnames";
+import SituationList from "../SituationList";
 
-interface Scenario {
-  scenario_id: number;
-  scenario_name: string;
+interface Situation {
+  situation_id: number;
+  situation_name: string;
+  category_id: number;
+}
+
+interface Category {
+  category_id: number;
+  category_name: string;
+  situations: Situation[];
 }
 
 export default function ScenarioList() {
-  const [scenarios, setScenarios] = useState<Scenario[]>([]);
-  const router = useRouter();
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [hoveredCategory, setHoveredCategory] = useState<number | null>(null);
 
   useEffect(() => {
-    const fetchScenarios = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch("http://localhost:4000/chatbot/scenarios");
-        if (!response.ok) {
-          throw new Error("네트워크 응답에 문제가 있습니다.");
-        }
-        const data: Scenario[] = await response.json();
-        setScenarios(data);
-      } catch (error) {
-        console.error("시나리오 데이터를 불러오는 중 오류 발생:", error);
+        const res = await fetch("http://localhost:4000/chatbot/categories-with-situations");
+        const data = await res.json();
+        setCategories(data);
+      } catch (err) {
+        console.error("데이터 불러오기 실패:", err);
       }
     };
-
-    fetchScenarios();
+    fetchData();
   }, []);
 
-  const handleClick = (scenarioId: number) => {
-    router.push(`/dashboard/conversation/${scenarioId}/practice`);
-  };
-
   return (
-    <div className="mt-10 w-full flex justify-center">
-      <div className="w-[1010px] h-[530px] grid grid-cols-5 gap-x-4 gap-y-3 p-5">
-        {scenarios.map((scenario) => (
-          <button
-            key={scenario.scenario_id}
-            onClick={() => handleClick(scenario.scenario_id)}
-            className="w-[180px] h-[60px] bg-white text-xl font-semibold text-gray-800 rounded-lg shadow-md hover:bg-gray-200 transition-all"
+    <div
+      className="mt-10 w-full max-w-[1100px] min-w-[1100px] mx-auto flex flex-col items-center"
+      onMouseLeave={() => setHoveredCategory(null)}
+    >
+      <div className="w-full flex flex-col space-y-6">
+        {categories.map((category) => (
+          <div
+            key={category.category_id}
+            onMouseEnter={() => setHoveredCategory(category.category_id)}
+            className={classNames(
+              "relative w-full text-3xl font-semibold text-white rounded-lg transition-all ease-in-out duration-300 flex flex-col items-start justify-start",
+              "bg-gradient-to-b from-[#FF6B6B] via-[#FF6E6E] to-[#FF8E8E]",
+              "shadow-sm shadow-red-300",
+              "before:content-[''] before:absolute before:inset-0 before:rounded-lg before:shadow-inner before:shadow-white/10",
+              hoveredCategory === category.category_id ? "h-[200px]" : "h-[80px]"
+            )}
           >
-            {scenario.scenario_name}
-          </button>
+            <span
+              className={classNames(
+                "absolute left-1/2 top-5 transform -translate-x-1/2 transition-all duration-500 ease-in-out",
+                hoveredCategory === category.category_id
+                  ? "opacity-0 scale-95 translate-y-[-10px]"
+                  : "opacity-100 scale-100 translate-y-0"
+              )}
+            >
+              {category.category_name}
+            </span>
+
+            {/* 상황 목록 전달 */}
+            <SituationList
+              categoryId={category.category_id}
+              isVisible={hoveredCategory === category.category_id}
+              situations={category.situations}
+            />
+          </div>
         ))}
       </div>
     </div>
