@@ -3,29 +3,24 @@
 @tailwind utilities;
 
 @layer components {
-  /* 네비게이션 아이템 */
   .nav-item {
     @apply flex items-center space-x-3 w-14 xl:w-56 h-12 p-4 rounded-lg text-lg font-semibold tracking-wide 
-      transition-all duration-300 border-l-[4px] border-transparent;
+    transition-all duration-300 border-l-[4px] border-transparent;
   }
 
-  /* 네비게이션 아이템 (hover 시 효과) */
   .nav-item-hover {
     @apply hover:bg-red-300 hover:shadow-md hover:scale-[1.04] hover:will-change-transform;
   }
 
-  /* 선택된 네비게이션 아이템 (현재 경로 표시) */
   .nav-item-active {
     @apply bg-[#ffb3b3] text-white border-[#ff5555];
   }
 
-  /* 툴팁 */
   .tooltip {
     @apply absolute left-full ml-5 px-2 py-1 text-sm font-medium text-white bg-gray-800 rounded-md opacity-0 
-      group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap xl:hidden;
+    group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap xl:hidden;
   }
 
-  /* 프로필 카드 */
   .profile-card {
     @apply w-56 bg-red-300 p-3 rounded-lg text-start hover:shadow-lg transition-all duration-300 flex flex-col;
   }

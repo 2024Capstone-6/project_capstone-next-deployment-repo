@@ -7,7 +7,7 @@ export default function ChatHeader() {
   const router = useRouter();
 
   return (
-    <div className="w-[1280px] h-[60px] flex justify-between items-center px-6 py-3 border-b border-nihonred mx-auto">
+    <div className="w-full h-[60px] flex justify-between items-center px-6 py-3 border-b border-nihonred">
       {/* 뒤로 가기 버튼 */}
       <button 
         className="text-xl font-bold text-gray-700 hover:text-nihonred"
