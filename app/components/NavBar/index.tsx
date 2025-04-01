@@ -39,10 +39,10 @@ export default function NavBar() {
                 >
                   {/* 툴팁 추가 */}
                   <div className="relative group">
-                    <span className="tooltip">{name}</span>
+                    <span className="tooltip hidden xl:block">{name}</span>
                     <Image src={icon} alt={name} width={28} height={28} priority />
                   </div>
-                  <span className="hidden xl:inline">{name}</span>
+                  <span className="xl:hidden xl:inline">{name}</span>
                 </div>
               </Link>
             </li>

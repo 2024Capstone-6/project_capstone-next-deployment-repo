@@ -9,6 +9,7 @@ import { useSocket } from "@/app/context/context";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Cookies } from "react-cookie";
+import customFetch from "@/util/custom-fetch";
 
 const cookies = new Cookies();
 
@@ -18,7 +19,7 @@ interface Room {
   isPlaying: boolean;
 }
 
-export default function gameLobby(){
+export default function GameLobby(){
   const [rooms, setRooms] = useState<Room[]>([{id:'방1',players:['Player1'],isPlaying:true},{id:'방2',players:['Player1'],isPlaying:true}]);
   const router = useRouter();
   // context를 이용한 socket 전역관리
@@ -27,16 +28,17 @@ export default function gameLobby(){
   // 로비 켜면 실행되는 로직
   useEffect(()=>{
     // 룸 정보들 받아오기
+    socket.emit("getRooms");
+    
     socket.on('room',(updateRooms:Room[])=>{
       setRooms(updateRooms)
     })
 
     socket.on("createRoom",(roomId)=>{
-      handleJoinRoom(roomId)
+      handleJoinRoom(roomId).catch((err) => console.error(err))
     })
 
     return () => {
-      // 더블렌더링 막기
       socket.off("room");
       socket.off("createRoom");
     }
@@ -45,20 +47,25 @@ export default function gameLobby(){
 
 
   // 방 참가
-  const handleJoinRoom = (roomId: string) => {
+  const handleJoinRoom = async (roomId: string) => {
     const playerName = cookies.get("access_token");
     if (!playerName) {
       alert("로그인이 필요합니다.");
+      const refreshToken = cookies.get("refreshToken")
+      if (!refreshToken) {
+        
+        return Promise.reject(new Error('Unauthorized'));
+      }
       return;
     }
-    socket.emit("joinRoom", roomId, playerName);
+    socket.emit("joinRoom", {roomId, playerName});
     router.push(`/dashboard/game/${roomId}`);
   };
- 
+
   // 방 생성
   const handleCreateRoom = () => {
     socket.emit("createRoom");
-  };  
+  };
 
   return(
     <div>
