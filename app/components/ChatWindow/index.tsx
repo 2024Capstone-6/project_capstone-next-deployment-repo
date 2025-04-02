@@ -85,7 +85,7 @@ export default function ChatWindow() {
 
               return (
                 <React.Fragment key={qna.qna_id}>
-                  <ChatBubble message={qna.chatbot_question} isUser={false} />
+                  <ChatBubble message={qna.jp_question} jp_mean={qna.kr_question} isUser={false} />
                   <ChatBubble
                     message={
                       isCorrect
@@ -101,10 +101,10 @@ export default function ChatWindow() {
 
           {/* 다시 학습하기 버튼 */}
           {isFinished && (
-            <div className="w-full mt-6 mb-20 flex justify-center">
+            <div className="w-full flex justify-center">
               <button
                 onClick={handleRetry}
-                className="px-6 py-3 bg-nihonred text-white rounded-lg text-lg font-semibold shadow hover:bg-red-500 transition-all"
+                className="px-4 py-3 bg-nihonred text-white rounded-lg text-lg font-semibold hover:bg-red-500 transition-all"
               >
                 다시 학습하기
               </button>

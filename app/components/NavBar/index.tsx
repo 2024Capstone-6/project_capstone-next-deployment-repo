@@ -8,7 +8,6 @@ const navItems = [
   { name: "단어/문법", path: "/dashboard/vocabulary", icon: "/navbar/book.png" },
   { name: "회화 연습", path: "/dashboard/conversation", icon: "/navbar/conversation.png" },
   { name: "그룹 게임", path: "/dashboard/group-games", icon: "/navbar/game.png" },
-  { name: "게시판", path: "/dashboard/board", icon: "/navbar/board.png" },
   { name: "단어장", path: "/dashboard/wordbook", icon: "/navbar/wordbook.png" },
   { name: "프로필", path: "/dashboard/profile", icon: "/navbar/profile.png", isProfile: true },
 ];
@@ -52,7 +51,7 @@ export default function NavBar() {
 
       {/* 미니 프로필 (xl 이하에서 숨김) */}
       <div className="hidden xl:flex p-3 mb-7 ml-0.5">
-        <Link href="/profile">
+        <Link href="/dashboard/profile">
           <div className="profile-card">
             <div className="flex items-center">
               <Image src="/navbar/profile.png" alt="프로필 아이콘" width={40} height={40} priority />

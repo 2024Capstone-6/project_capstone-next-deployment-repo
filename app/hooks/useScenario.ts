@@ -9,7 +9,9 @@ interface Choice {
 
 export interface Question {
   qna_id: number;
-  chatbot_question: string;
+  jp_question: string;
+  kr_question: string;
+  jp_answer: string;
   kr_answer: string;
   blank_answer: string;
   order_index: number;

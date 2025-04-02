@@ -5,11 +5,12 @@ import classNames from "classnames";
 
 interface ChatBubbleProps {
   message: string;
+  jp_mean?: string;
   isUser: boolean;
   feedback?: string;
 }
 
-export default function ChatBubble({ message, isUser, feedback }: ChatBubbleProps) {
+export default function ChatBubble({ message, jp_mean, isUser, feedback }: ChatBubbleProps) {
   return (
     <div
       className={classNames("flex items-end space-x-2 w-full", {
@@ -33,6 +34,12 @@ export default function ChatBubble({ message, isUser, feedback }: ChatBubbleProp
         )}
       >
         <p>{message}</p>
+        {!isUser && (
+          <>
+            <hr className="my-2 border-t border-black opacity-40" />
+            <p className="text-base">{jp_mean}</p>
+          </>
+        )}
         {feedback && (
           <>
             <hr className="my-2 border-t border-white opacity-40" />
