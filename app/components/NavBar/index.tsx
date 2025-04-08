@@ -1,3 +1,4 @@
+
 "use client";
 import Link from "next/link";
 import Image from "next/image";
@@ -22,11 +23,15 @@ export default function NavBar() {
         {/* 로고 */}
         <Link href="/dashboard/vocabulary" className="flex items-center space-x-3 text-white font-bold text-2xl transition-all duration-300">
           <Image src="/navbar/clover.png" alt="Logo" width={32} height={32} priority />
+
+
+
           <span className="hidden xl:inline">NihonClover</span>
         </Link>
 
         {/* 네비게이션 */}
         <ul className="mt-7 space-y-4 -ml-3.5">
+
           {navItems.map(({ path, name, icon, isProfile }) => (
             <li key={path} className={isProfile ? "xl:hidden" : ""}>
               <Link href={path}>
@@ -43,6 +48,7 @@ export default function NavBar() {
                     <Image src={icon} alt={name} width={28} height={28} priority />
                   </div>
                   <span className="xl:hidden xl:inline">{name}</span>
+
                 </div>
               </Link>
             </li>
@@ -52,6 +58,7 @@ export default function NavBar() {
 
       {/* 미니 프로필 (xl 이하에서 숨김) */}
       <div className="hidden xl:flex p-3 mb-7 ml-0.5">
+
         <Link href="/profile">
           <div className="profile-card">
             <div className="flex items-center">
