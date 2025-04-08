@@ -2,20 +2,26 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer components {
+  .nav-item {
+    @apply flex items-center space-x-3 w-14 xl:w-56 h-12 p-4 rounded-lg text-lg font-semibold tracking-wide 
+    transition-all duration-300 border-l-[4px] border-transparent;
   }
-}
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  .nav-item-hover {
+    @apply hover:bg-red-300 hover:shadow-md hover:scale-[1.04] hover:will-change-transform;
+  }
+
+  .nav-item-active {
+    @apply bg-[#ffb3b3] text-white border-[#ff5555];
+  }
+
+  .tooltip {
+    @apply absolute left-full ml-5 px-2 py-1 text-sm font-medium text-white bg-gray-800 rounded-md opacity-0 
+    group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap xl:hidden;
+  }
+
+  .profile-card {
+    @apply w-56 bg-red-300 p-3 rounded-lg text-start hover:shadow-lg transition-all duration-300 flex flex-col;
+  }
 }
