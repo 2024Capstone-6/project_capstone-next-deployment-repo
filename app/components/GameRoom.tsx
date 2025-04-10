@@ -4,48 +4,52 @@ import { useSocket } from "@/app/context/context";
 import { useRouter } from "next/navigation";
 import  { useEffect, useState } from "react";
 
-interface User {
-  id : number
-  name : string
-}
+
 
 export default function GameRoom(props : {roomid:string}){
-  const [players,setPlayers]=useState<User[]>([]) 
+  const [players,setPlayers]=useState<string[]>([]) 
   const socket = useSocket()
   const router = useRouter();
 
   useEffect(()=>{
     if(!props.roomid) return;
-    socket.emit("getRoomInfo", props.roomid);
+    // socket.emit("getRoomInfo", props.roomid);
+    socket.emit("joinRoom",props.roomid);
+      console.log(123);
+      socket.on("roomUpdated",(e)=>{
+        console.log(e);
+        console.log(e.participants);
+        setPlayers(e.participants)
+      }
+    );
+    window.addEventListener("beforeunload", leaveRoom);
+    window.addEventListener("popstate", leaveRoom);
 
-    socket.on("update_players", (players) => setPlayers(players));
-
-    return (()=>{
-      socket.off("update_players");
-      window.removeEventListener("beforeunload", leaveRoom);
-      window.removeEventListener("popstate", leaveRoom);
-    })
-
-  },[props.roomid])
-
+  return (()=>{
+    window.removeEventListener("beforeunload", leaveRoom);
+    window.removeEventListener("popstate", leaveRoom);
+    socket.off("joinRoom");
+  })
+  },[props.roomid, socket])
+  
   const startGame = () =>{
     socket.emit("startGame",props.roomid)
   }
-
+  
   const leaveRoom = () => {
     socket.emit("leaveRoom",props.roomid)
-    router.push("/dashboard/game")
+    router.push("/dashboard/group-games")
   }
-
+  
   return(
     <div className="h-screen place-items-center pt-[3%]">
       <h1 className="text-3xl font-bold text-red-500 mb-6">스피드 퀴즈</h1>
  
-      <div className="w-[80%] min-w-[40rem] h-[60%] bg-gray-300 p-6 rounded-lg shadow-lg">
+      <div onClick={()=>{console.log(players);}} className="w-[80%] min-w-[40rem] h-[60%] bg-gray-300 p-6 rounded-lg shadow-lg">
         <div className="h-[80%] grid grid-cols-2 gap-4">
           {players.map((player, index) => (
               <div key={index} className="h-[100%] bg-white p-4 text-center rounded-md shadow">
-                {player.name}
+                {player}
               </div>
             ))}
         </div>

@@ -17,15 +17,18 @@ export default function LoginCompo(){
 
   const LoginHandler =async()=>{
     const res = await customFetch("/auth/login",{
-    method:"POST",
+    method:"POST", 
     body: JSON.stringify({"email": email, "password": password})
   })
   if(res.ok){
     const data = await res.json()
     const access_time = new Date()
+    const refresh_time = new Date()
+    refresh_time.setHours(refresh_time.getHours()+24)
     access_time.setMinutes(access_time.getMinutes()+60)
     // 쿠키 저장 이름, 쿠키저장 값, 옵션 path:'/'는 모든곳에서 쿠키사용, expires는 유효시간
-    cookies.set('token',data,{path:'/',expires:access_time})
+    cookies.set('accessToken',data.accessToken,{path:'/',expires:access_time})
+    cookies.set('refreshToken',data.refreshToken,{path:'/',expires:refresh_time})
     console.log(data)
     router.push('/')
   }
