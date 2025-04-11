@@ -18,8 +18,12 @@ interface SituationListProps {
 export default function SituationList({ categoryId, isVisible, situations }: SituationListProps) {
   const router = useRouter();
 
-  const handleClick = (situationId: number) => {
-    router.push(`/dashboard/conversation/${categoryId}/${situationId}/practice`);
+  const handleClick = (situation: Situation) => {
+    router.push(
+      `/dashboard/conversation/${categoryId}/${situation.situation_id}/practice?situation_name=${encodeURIComponent(
+        situation.situation_name
+      )}`
+    );
   };
 
   return (
@@ -34,7 +38,7 @@ export default function SituationList({ categoryId, isVisible, situations }: Sit
       {situations.map((situation) => (
         <div
           key={situation.situation_id}
-          onClick={() => handleClick(situation.situation_id)}
+          onClick={() => handleClick(situation)}
           className="px-4 py-2 bg-white text-gray-900 text-lg font-medium rounded-md shadow-md hover:bg-gray-200 cursor-pointer transition-all"
         >
           {situation.situation_name}
