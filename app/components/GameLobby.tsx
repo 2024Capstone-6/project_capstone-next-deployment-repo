@@ -83,7 +83,6 @@ export default function GameLobby(){
       }
       return;
     }
-    console.log("t756576");
     router.push(`/dashboard/group-games/${roomId}`);
   };
 
