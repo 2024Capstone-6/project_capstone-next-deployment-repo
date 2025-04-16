@@ -39,28 +39,48 @@ export default function WordLayout({ uuid, words, onRestart }: WordLayoutProps) 
     }
   }, [words]);
 
+  useEffect(() => {
+    console.log('wordList:', wordList);
+    console.log('WordLayout props.words:', words);
+  }, [wordList]);
+
   // ✅ "한번 더" 버튼 핸들러
   const handleRetry = async () => {
+    // newList가 null/undefined일 수 있으므로 안전하게 처리
+    if (!wordList || wordList.length === 0) {
+      console.error("단어 리스트가 비어있습니다");
+      return;
+    }
+  
     setWordList(prev => {
+      // 유효한 배열인지 확인
+      if (!Array.isArray(prev) || prev.length === 0) return prev;
+      
       const newList = [...prev];
       const [currentWord] = newList.splice(currentIndex, 1);
       
       // 10번째 뒤로 이동
       const insertPosition = Math.min(currentIndex + 10, newList.length);
       newList.splice(insertPosition, 0, currentWord);
-  
-      // 저장 API 호출
-      customFetch("/user-words", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          uuid: uuid,
-          shuffled_word_ids: newList.map(w => w.word_id)
-        })
-      }).catch(error => {
-        console.error("Failed to save:", error);
-      });
-  
+      
+      // 데이터 유효성 검사 후 API 호출
+      const validWordIds = newList
+        .filter(w => w && typeof w === 'object' && 'word_id' in w)
+        .map(w => w.word_id);
+      
+      if (validWordIds.length > 0) {
+        customFetch("/user-words", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            uuid: uuid,
+            shuffled_word_ids: validWordIds
+          })
+        }).catch(error => {
+          console.error("Failed to save:", error);
+        });
+      }
+      
       return newList;
     });
   };

@@ -29,6 +29,11 @@ export default function LoginCompo(){
     // 쿠키 저장 이름, 쿠키저장 값, 옵션 path:'/'는 모든곳에서 쿠키사용, expires는 유효시간
     cookies.set('accessToken',data.accessToken,{path:'/',expires:access_time})
     cookies.set('refreshToken',data.refreshToken,{path:'/',expires:refresh_time})
+
+    // ✅ uuid를 localStorage에 저장
+    if (data.uuid) {
+      localStorage.setItem("uuid", data.uuid);
+    }
     console.log(data)
     router.push('/')
   }

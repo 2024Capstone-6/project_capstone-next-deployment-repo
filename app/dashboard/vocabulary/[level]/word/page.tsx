@@ -99,6 +99,7 @@ export default function WordPage() {
   useEffect(() => {
     const storedUuid = localStorage.getItem("uuid") || "temp-uuid";
     setUuid(storedUuid);
+    console.log(storedUuid + '반갑uuid')
   }, []);
 
   // 셔플된 단어 ID 저장 API 호출
@@ -125,11 +126,19 @@ export default function WordPage() {
         ? data.filter(w => w.word_level.trim().toUpperCase() === level.toUpperCase())
         : data;
 
+      console.log('filteredWords:', filteredWords);  
+
       // 3. 저장된 셔플 확인
       const savedResponse = await customFetch(`/user-words?uuid=${uuid}`);
+      if (savedResponse.status === 204) {
+      // 204 No Content
+      return { shuffled_word_ids: [] };
+      }
       const savedData = await savedResponse.json();
+
+      console.log('savedData:', savedData);
       
-      if (savedData?.shuffled_word_ids) {
+      if (savedData?.shuffled_word_ids && savedData.shuffled_word_ids.length > 0) {
         // 저장된 순서대로 재정렬
         const orderedWords = savedData.shuffled_word_ids
           .map((id: number) => filteredWords.find(w => w.word_id === id))
