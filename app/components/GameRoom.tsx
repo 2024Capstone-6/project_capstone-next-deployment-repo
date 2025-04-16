@@ -1,63 +1,70 @@
-"use client"
+"use client";
 
-import { useSocket } from "@/app/context/context";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import  { useEffect, useState } from "react";
+import { io, Socket } from "socket.io-client";
 
-
-
-export default function GameRoom(props : {roomid:string}){
-  const [players,setPlayers]=useState<string[]>([]) 
-  const socket = useSocket()
-  const [hasLeft, setHasLeft] = useState(false);
+export default function GameRoom({ roomid }: { roomid: string }) {
+  const [players, setPlayers] = useState<string[]>([]);
+  const [socket, setSocket] = useState<Socket | null>(null);
   const router = useRouter();
 
   const leaveRoom = () => {
-    console.log("leaveRoom 호출");
-    socket.emit("leaveRoom", props.roomid);
-  }
+    if (socket) {
+      console.log("leaveRoom 호출");
+      socket.emit("leaveRoom", roomid);
+      socket.disconnect(); // 소켓 종료
+    }
+  };
 
-  useEffect(()=>{
-    if(!props.roomid) return;
-    // socket.emit("getRoomInfo", props.roomid);
+  useEffect(() => {
+    const newSocket = io("http://localhost:4000", {
+      withCredentials: true,
+    });
+    setSocket(newSocket);
 
-    socket.emit("joinRoom",props.roomid);
-      socket.on("roomUpdated",(e)=>{
-        setPlayers(e.participants)
-        if (e.participants.length > 4 && !hasLeft) {
-          alert("4명이상입니다.")
-          setHasLeft(true);
-          leaveRoom();
-          router.push("/dashboard/group-games");
-        }
+    newSocket.emit("joinRoom", roomid);
+
+    newSocket.on("roomUpdated", (e) => {
+      setPlayers(e.participants);
+      const myId = newSocket.id;
+      if (e.participants.length > 4 && e.participants.includes(myId)) {
+        alert("4명이 초과되어 나갑니다.");
+        leaveRoom();
+        router.push("/dashboard/group-games");
       }
-    );
-    
-  return (()=>{
-    socket.off("roomUpdated");
-  })
-  },[props.roomid, socket,router,hasLeft])
-  
-  const startGame = () =>{
-    socket.emit("startGame",props.roomid)
-  }
-  
-  const leaveRoomActive = ()=>{
-      leaveRoom()
-      router.push("/dashboard/group-games");
-  }
-  
-  return(
+    });
+
+    return () => {
+      newSocket.emit("leaveRoom", roomid);
+      newSocket.disconnect();
+    };
+  }, [roomid, router]);
+
+  const startGame = () => {
+    if (socket) {
+      socket.emit("startGame", roomid);
+    }
+  };
+
+  const leaveRoomActive = () => {
+    leaveRoom();
+    router.push("/dashboard/group-games");
+  };
+
+  return (
     <div className="h-screen place-items-center pt-[3%]">
       <h1 className="text-3xl font-bold text-red-500 mb-6">스피드 퀴즈</h1>
- 
       <div className="w-[80%] min-w-[40rem] h-[60%] bg-gray-300 p-6 rounded-lg shadow-lg">
         <div className="h-[80%] grid grid-cols-2 gap-4">
           {players.map((player, index) => (
-              <div key={index} className="h-[100%] bg-white p-4 text-center rounded-md shadow">
-                {player}
-              </div>
-            ))}
+            <div
+              key={index}
+              className="h-[100%] bg-white p-4 text-center rounded-md shadow"
+            >
+              {player}
+            </div>
+          ))}
         </div>
       </div>
 
@@ -70,5 +77,5 @@ export default function GameRoom(props : {roomid:string}){
         </button>
       </div>
     </div>
-  )
+  );
 }

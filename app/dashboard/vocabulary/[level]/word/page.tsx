@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import WordLayout from "../components/WordLayout";
+import customFetch from "@/util/custom-fetch";
 
 interface Word {
   word_id: number;
@@ -21,6 +22,7 @@ export default function WordPage() {
   // ✅ 단어 불러오기 + 랜덤 셔플
   const fetchWords = async () => {
     try {
+      // const res = await customFetch('/words')
       const response = await fetch("http://localhost:4000/words");
       const data: Word[] = await response.json();
 
