@@ -1,4 +1,3 @@
-import { useRouter } from "next/navigation";
 import { Cookies } from "react-cookie";
 
 const BASE_URL = 'http://localhost:4000';
@@ -20,7 +19,7 @@ async function customFetch(url: string, options:any = {}):Promise<Response> {
     const refreshToken = cookies.get("refreshToken")
     if (!refreshToken) {
       handleLogout();
-      return Promise.reject(new Error('Unauthorized'));
+      return Promise.reject(new Error('refresh Unauthorized'));
     }
     // 엑세스 토큰 재발급
     const newAccessToken = await refreshAccessToken(refreshToken);
@@ -28,7 +27,7 @@ async function customFetch(url: string, options:any = {}):Promise<Response> {
     if (!newAccessToken) {
       handleLogout();
       // Promise reject로 비동기 오류 출력
-      return Promise.reject(new Error('Unauthorized'));
+      return Promise.reject(new Error('dsaf Unauthorized'));
     }
 
     cookies.set('accessToken', newAccessToken);
@@ -60,12 +59,11 @@ async function refreshAccessToken(refreshToken:string) {
 
 // 리프레시토큰 만료시 로그아웃
 const handleLogout = ()=> {
-  const router = useRouter()
-
   console.log('리프레시 토큰도 만료됨. 로그아웃 처리');
   cookies.remove('accessToken');
-  cookies.remove('refreshToken');
-  router.push('/login')
+  cookies.remove('refreshToken'); 
+  alert("로그인정보가 만료되었습니다 재 로그인 해주세요")
+  window.location.href = '/login';
 }
 
 export default customFetch;

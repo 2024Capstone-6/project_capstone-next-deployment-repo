@@ -3,6 +3,7 @@ import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import Modal from "../Modal";
 import Searchbar from "../Searchbar";
+import customFetch from "@/util/custom-fetch";
 
 interface Word {
   word_id: number;
@@ -15,9 +16,10 @@ interface Word {
 interface WordLayoutProps {
   words: Word[];
   onRestart: () => void;
+  uuid: string;
 }
 
-export default function WordLayout({ words, onRestart }: WordLayoutProps) {
+export default function WordLayout({ uuid, words, onRestart }: WordLayoutProps) {
   const [wordList, setWordList] = useState<Word[]>(words);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -36,6 +38,32 @@ export default function WordLayout({ words, onRestart }: WordLayoutProps) {
       setVisibility({ furigana: false, mean: false, workbook: false });
     }
   }, [words]);
+
+  // ✅ "한번 더" 버튼 핸들러
+  const handleRetry = async () => {
+    setWordList(prev => {
+      const newList = [...prev];
+      const [currentWord] = newList.splice(currentIndex, 1);
+      
+      // 10번째 뒤로 이동
+      const insertPosition = Math.min(currentIndex + 10, newList.length);
+      newList.splice(insertPosition, 0, currentWord);
+  
+      // 저장 API 호출
+      customFetch("/user-words", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          uuid: uuid,
+          shuffled_word_ids: newList.map(w => w.word_id)
+        })
+      }).catch(error => {
+        console.error("Failed to save:", error);
+      });
+  
+      return newList;
+    });
+  };
 
   // 검색 시 선택한 단어를 현재 위치로 이동하고 기존 단어를 뒤로 보냄 (즉시 반영)
   const handleSelectWord = (selectedWordId: number) => {
@@ -123,7 +151,7 @@ export default function WordLayout({ words, onRestart }: WordLayoutProps) {
 
           {/* 버튼 영역 */}
           <div className="flex justify-between w-full mt-3">
-            <button className="w-[180px] h-[45px] font-bold rounded-lg border-2 border-nihonred">한번 더</button>
+            <button className="w-[180px] h-[45px] font-bold rounded-lg border-2 border-nihonred" onClick={handleRetry}>한번 더</button>
             <button className="w-[180px] h-[45px] bg-red-400 text-white font-bold rounded-lg" onClick={() => setVisibility((prev) => ({ ...prev, mean: !prev.mean }))}>
               의미
             </button>

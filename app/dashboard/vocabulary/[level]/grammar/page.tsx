@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import GrammarLayout from "../components/GrammarLayout";
+import customFetch from "@/util/custom-fetch";
 
 interface Grammar {
   grammar_id: number;
@@ -25,7 +26,7 @@ export default function GrammarPage() {
   // ✅ 단어 불러오기 + 랜덤 셔플
   const fetchGrammars = async () => {
     try {
-      const response = await fetch("http://localhost:4000/grammars");
+      const response = await customFetch("/grammars");
       const data: Grammar[] = await response.json();
 
       if (level) {
