@@ -8,7 +8,7 @@ import classNames from "classnames";
 const navItems = [
   { name: "단어/문법", path: "/dashboard/vocabulary", icon: "/navbar/book.png" },
   { name: "회화 연습", path: "/dashboard/conversation", icon: "/navbar/conversation.png" },
-  { name: "그룹 게임", path: "/dashboard/group-games", icon: "/navbar/game.png" },
+  { name: "그룹 게임", path: "/dashboard/game-mode", icon: "/navbar/game.png" },
   { name: "단어장", path: "/dashboard/wordbook", icon: "/navbar/wordbook.png" },
   { name: "프로필", path: "/dashboard/profile", icon: "/navbar/profile.png", isProfile: true },
 ];
