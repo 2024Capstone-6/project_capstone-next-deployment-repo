@@ -14,9 +14,10 @@ export default function ChatWindowFreeTalk() {
   const situationName = searchParams.get("situation_name") || "";
 
   const [messages, setMessages] = useState<Message[]>([]);
+  const [isSending, setIsSending] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [isAtBottom, setIsAtBottom] = useState(true);
 
-  // 첫 질문 요청
   useEffect(() => {
     const fetchInitialMessage = async () => {
       try {
@@ -35,9 +36,23 @@ export default function ChatWindowFreeTalk() {
     if (situationName) fetchInitialMessage();
   }, [situationName]);
 
-  // 자동 스크롤
+  // 스크롤 감지
   useEffect(() => {
-    if (scrollRef.current) {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const handleScroll = () => {
+      const isBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 5;
+      setIsAtBottom(isBottom);
+    };
+
+    el.addEventListener("scroll", handleScroll);
+    return () => el.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // 조건부 자동 스크롤
+  useEffect(() => {
+    if (isAtBottom && scrollRef.current) {
       scrollRef.current.scrollTo({
         top: scrollRef.current.scrollHeight,
         behavior: "smooth",
@@ -45,9 +60,11 @@ export default function ChatWindowFreeTalk() {
     }
   }, [messages]);
 
-  // 사용자 입력 처리
   const handleSubmit = async (userInput: string) => {
+    if (isSending) return;
+
     setMessages((prev) => [...prev, { role: "user", text: userInput }]);
+    setIsSending(true);
 
     try {
       const res = await fetch("http://localhost:4000/chatbot/continue", {
@@ -59,27 +76,32 @@ export default function ChatWindowFreeTalk() {
       setMessages((prev) => [...prev, { role: "bot", text: data.text }]);
     } catch (err) {
       console.error("응답 실패:", err);
+    } finally {
+      setIsSending(false);
     }
   };
 
   return (
     <div className="relative flex-1 flex flex-col items-center w-full max-h-full overflow-hidden">
-      {/* 채팅 영역 */}
       <div
         ref={scrollRef}
         className="flex-1 w-full overflow-y-auto flex justify-center"
       >
         <div className="w-full max-w-[900px] px-4 py-6 space-y-6">
           {messages.map((msg, idx) => (
-            <ChatBubble key={idx} message={msg.text} isUser={msg.role === "user"} showMeaning={false} />
+            <ChatBubble
+              key={idx}
+              message={msg.text}
+              isUser={msg.role === "user"}
+              showMeaning={false}
+            />
           ))}
         </div>
       </div>
 
-      {/* 입력창 */}
       <div className="w-full flex justify-center px-4 pb-3 pt-3">
         <div className="w-full max-w-[900px]">
-          <ChatInput onSubmit={handleSubmit} />
+          <ChatInput onSubmit={handleSubmit} isSending={isSending} />
         </div>
       </div>
     </div>

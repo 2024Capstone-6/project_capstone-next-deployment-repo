@@ -17,8 +17,34 @@ export default function ChatWindow() {
   }>({});
 
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [isAtBottom, setIsAtBottom] = useState(true);
+
   const showOptions = scenario && currentIndex < scenario.length;
   const isFinished = scenario && currentIndex >= scenario.length;
+
+  // 스크롤 감지
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const handleScroll = () => {
+      const isBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 5;
+      setIsAtBottom(isBottom);
+    };
+
+    el.addEventListener("scroll", handleScroll);
+    return () => el.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // 조건부 자동 스크롤
+  useEffect(() => {
+    if (isAtBottom && scrollRef.current) {
+      scrollRef.current.scrollTo({
+        top: scrollRef.current.scrollHeight,
+        behavior: "smooth",
+      });
+    }
+  }, [currentIndex, answeredMap]);
 
   const handleAnswer = async (selectedChoice: string) => {
     if (!scenario) return;
@@ -59,16 +85,6 @@ export default function ChatWindow() {
     setAnsweredMap({});
   };
 
-  // 자동 스크롤
-  useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTo({
-        top: scrollRef.current.scrollHeight,
-        behavior: "smooth",
-      });
-    }
-  }, [currentIndex, answeredMap]);
-
   return (
     <ChatWindowLayout
       scrollRef={scrollRef}
@@ -101,7 +117,6 @@ export default function ChatWindow() {
               );
             })}
 
-          {/* 다시 학습하기 버튼 */}
           {isFinished && (
             <div className="w-full flex justify-center">
               <button

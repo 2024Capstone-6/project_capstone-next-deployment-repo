@@ -38,8 +38,8 @@ export default function ChatBubble({
         className={classNames(
           "px-4 py-2 rounded-xl text-lg break-words max-w-[75%] md:max-w-[65%] lg:max-w-[60%]",
           isUser
-            ? "bg-nihonred text-white"
-            : "border-2 border-nihonred text-gray-900"
+            ? "bg-nihonred text-white text-xl"
+            : "border-2 border-nihonred text-gray-900 text-xl"
         )}
       >
         <p>{message}</p>

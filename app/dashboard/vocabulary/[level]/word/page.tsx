@@ -1,7 +1,9 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import WordLayout from "../components/WordLayout";
+import customFetch from "@/util/custom-fetch";
 
 interface Word {
   word_id: number;
@@ -18,10 +20,9 @@ export default function WordPage() {
   const [words, setWords] = useState<Word[]>([]);
   const level = decodeURIComponent(levelRaw).replace("JLPT ", "").trim();
 
-  // ✅ 단어 불러오기 + 랜덤 셔플
   const fetchWords = async () => {
     try {
-      const response = await fetch("http://localhost:4000/words");
+      const response = await customFetch("/words");
       const data: Word[] = await response.json();
 
       if (level) {
@@ -31,7 +32,7 @@ export default function WordPage() {
         setWords(shuffleArray(filteredWords));
       }
     } catch (error) {
-      console.error("오류 발생:", error);
+      console.error("❌ 단어 불러오기 실패:", error);
     }
   };
 
@@ -43,9 +44,8 @@ export default function WordPage() {
     return array.sort(() => Math.random() - 0.5);
   };
 
-  // ✅ "다시 학습" 버튼 클릭 시 새로 셔플
   const restartLearning = () => {
-    setWords(shuffleArray([...words])); // 🔹 기존 단어를 다시 섞음
+    setWords(shuffleArray([...words]));
   };
 
   return <WordLayout words={words} onRestart={restartLearning} />;
