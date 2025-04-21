@@ -28,9 +28,10 @@ export default function SoloGamePage(){
         }
       )
       const data = await res.json()
-      const word_quiz:string[] = data.word_quiz
+      const shuffledArray:string[] = data.word_quiz.sort(() => Math.random() - 0.5);
       setQuestion(data.word)
-      setChoices(word_quiz)
+      setChoices(shuffledArray)
+      setAnswer(data.word_furigana)
       console.log(data)
     }
     question_request()
@@ -58,7 +59,7 @@ export default function SoloGamePage(){
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
     }
-    if(answer === choice){
+    if(answer == choice){
       setIsModal('정답!')
     }
     else{
@@ -71,8 +72,10 @@ export default function SoloGamePage(){
       method: "GET"
     });
     const data = await res.json();
+    const shuffledArray:string[] = data.word_quiz.sort(() => Math.random() - 0.5);
     setQuestion(data.word);
-    setChoices(data.word_quiz);
+    setChoices(shuffledArray);
+    setAnswer(data.word_furigana)
     setIsModal("");
     setTimer(10);
   
