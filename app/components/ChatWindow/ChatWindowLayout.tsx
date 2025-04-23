@@ -14,7 +14,6 @@ export default function ChatWindowLayout({
 }: ChatWindowLayoutProps) {
   return (
     <div className="relative flex-1 flex flex-col items-center w-full max-h-full overflow-hidden">
-      {/* 채팅 영역 */}
       <div
         ref={scrollRef}
         className="flex-1 w-full overflow-y-auto flex justify-center"
@@ -25,7 +24,6 @@ export default function ChatWindowLayout({
         </div>
       </div>
 
-      {/* 선택지 영역 */}
       {optionsContent && (
         <div className="w-full flex justify-center px-4 pb-3 pt-3">
           <div className="w-full max-w-[900px]">{optionsContent}</div>

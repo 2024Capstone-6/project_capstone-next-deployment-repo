@@ -1,5 +1,6 @@
 "use client";
-import React, { useState } from "react";
+
+import React from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import ConfirmExitModal from "../FeedbackModal";
 
@@ -9,9 +10,9 @@ export default function ChatHeader() {
   const pathname = usePathname();
   const situationName = searchParams.get("situation_name");
 
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
-  const [feedbackText, setFeedbackText] = useState("");
+  const [showConfirmModal, setShowConfirmModal] = React.useState(false);
+  const [showFeedbackModal, setShowFeedbackModal] = React.useState(false);
+  const [feedbackText, setFeedbackText] = React.useState("");
 
   const isFreeTalkPage = pathname.includes("freeTalk");
 
@@ -34,26 +35,23 @@ export default function ChatHeader() {
   };
 
   return (
-    <div className="w-full h-[60px] flex justify-between items-center px-6 py-3 border-b border-nihonred relative">
-      {/* 뒤로 가기 */}
+    <div className="w-full h-[60px] flex justify-between items-center px-4 sm:px-6 border-b border-nihonred relative">
       <button
-        className="text-xl font-bold text-gray-700 hover:text-nihonred"
+        className="text-sm sm:text-base font-bold text-gray-700 hover:text-nihonred"
         onClick={() => router.back()}
       >
         ← 뒤로 가기
       </button>
 
-      {/* 상황 이름 */}
       {situationName && (
-        <div className="absolute left-1/2 transform -translate-x-1/2 text-lg font-semibold text-gray-800 truncate max-w-[60%] text-center">
+        <div className="absolute left-1/2 transform -translate-x-1/2 text-sm sm:text-lg font-semibold text-gray-800 truncate max-w-[60%] text-center">
           {situationName}
         </div>
       )}
 
-      {/* 오른쪽 버튼 */}
       {!isFreeTalkPage ? (
         <button
-          className="px-4 py-2 bg-nihonred text-white font-semibold rounded-lg hover:bg-red-500 transition-all"
+          className="px-4 py-2 text-sm sm:text-base bg-nihonred text-white font-semibold rounded-lg hover:bg-red-500 transition-all"
           onClick={() => {
             const current = searchParams.get("situation_name");
             router.push(`./freeTalk${current ? `?situation_name=${current}` : ""}`);
@@ -63,14 +61,13 @@ export default function ChatHeader() {
         </button>
       ) : (
         <button
-          className="px-4 py-2 bg-nihonred text-white font-semibold rounded-lg hover:bg-red-500 transition-all"
+          className="px-4 py-2 text-sm sm:text-base bg-nihonred text-white font-semibold rounded-lg hover:bg-red-500 transition-all"
           onClick={() => setShowConfirmModal(true)}
         >
           피드백 및 종료
         </button>
       )}
 
-      {/* [1] 대화 종료 확인 모달 */}
       {showConfirmModal && (
         <ConfirmExitModal
           onContinue={() => setShowConfirmModal(false)}
@@ -81,7 +78,6 @@ export default function ChatHeader() {
         />
       )}
 
-      {/* [2] 피드백 모달 */}
       {showFeedbackModal && (
         <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
           <div className="relative bg-white rounded-xl max-w-[600px] w-full p-6 shadow-lg">

@@ -22,21 +22,17 @@ export default function ChatWindow() {
   const showOptions = scenario && currentIndex < scenario.length;
   const isFinished = scenario && currentIndex >= scenario.length;
 
-  // 스크롤 감지
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
-
     const handleScroll = () => {
       const isBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 5;
       setIsAtBottom(isBottom);
     };
-
     el.addEventListener("scroll", handleScroll);
     return () => el.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // 조건부 자동 스크롤
   useEffect(() => {
     if (isAtBottom && scrollRef.current) {
       scrollRef.current.scrollTo({

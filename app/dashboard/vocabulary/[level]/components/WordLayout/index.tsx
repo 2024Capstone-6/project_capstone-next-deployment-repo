@@ -66,32 +66,36 @@ export default function WordLayout({ words, onRestart }: WordLayoutProps) {
   };
 
   return (
-    <div className="min-h-screen min-w-[1280px] w-full flex items-center justify-center px-4 sm:px-6 lg:px-12 overflow-auto">
-      <div className="w-full max-w-[1000px] flex flex-col items-center justify-center">
-        <Searchbar
-          searchItems={wordList.map((word) => ({
-            id: word.word_id,
-            mainText: word.word,
-            furigana: word.word_furigana,
-            meaning: word.word_meaning,
-          }))}
-          onSelectItem={handleSelectWord}
-        />
+    <div className="w-full min-h-screen overflow-auto flex justify-center px-4 py-6 xl:pt-12">
+      <div className="w-full max-w-[1200px] flex flex-col items-center">
+        {/* 검색창 */}
+        <div className="w-full max-w-[800px] mb-6">
+          <Searchbar
+            searchItems={wordList.map((word) => ({
+              id: word.word_id,
+              mainText: word.word,
+              furigana: word.word_furigana,
+              meaning: word.word_meaning,
+            }))}
+            onSelectItem={handleSelectWord}
+          />
+        </div>
 
-        <div className="relative flex flex-col items-center mt-4 w-full max-w-[800px]">
-          <div className="min-h-[400px] sm:min-h-[500px] w-full rounded-lg flex flex-col items-center justify-center border-2 border-nihonred relative px-4 py-6">
+        {/* 카드 영역 */}
+        <div className="relative w-full max-w-[800px] flex flex-col items-center">
+          <div className="w-full min-h-[300px] sm:min-h-[400px] md:min-h-[500px] rounded-lg flex flex-col items-center justify-center border-2 border-nihonred relative px-4 py-6">
             <button
               className="absolute right-4 top-4 bg-transparent text-red-400 text-2xl"
               onClick={() => setVisibility((prev) => ({ ...prev, workbook: !prev.workbook }))}
             >
-              <Image src={"/bookmark/bookmark.png"} alt="bookmark" width={30} height={30} unoptimized />
+              <Image src="/bookmark/bookmark.png" alt="bookmark" width={30} height={30} unoptimized />
             </button>
 
             {wordList.length > 0 && (
               <>
                 {visibility.furigana && <p className="text-nihonred text-2xl sm:text-4xl">{wordList[currentIndex].word_furigana}</p>}
-                <p className="text-nihonred text-5xl sm:text-7xl font-bold">{wordList[currentIndex].word}</p>
-                {visibility.mean && <p className="text-black text-2xl sm:text-4xl font-semibold pt-3">{wordList[currentIndex].word_meaning}</p>}
+                <p className="text-nihonred text-5xl sm:text-6xl md:text-7xl font-bold">{wordList[currentIndex].word}</p>
+                {visibility.mean && <p className="text-black text-2xl sm:text-3xl md:text-4xl font-semibold pt-3">{wordList[currentIndex].word_meaning}</p>}
               </>
             )}
           </div>
@@ -102,7 +106,8 @@ export default function WordLayout({ words, onRestart }: WordLayoutProps) {
             </div>
           )}
 
-          <div className="flex flex-wrap justify-between w-full mt-3 gap-2 sm:gap-4">
+          {/* 버튼 영역 */}
+          <div className="flex flex-wrap justify-between w-full mt-4 gap-2 sm:gap-4">
             <button className="flex-1 min-w-[120px] h-[45px] text-sm sm:text-base border-2 border-nihonred rounded-lg font-bold">한번 더</button>
             <button className="flex-1 min-w-[120px] h-[45px] text-sm sm:text-base bg-red-400 text-white font-bold rounded-lg" onClick={() => setVisibility((prev) => ({ ...prev, mean: !prev.mean }))}>의미</button>
             <button className="flex-1 min-w-[120px] h-[45px] text-sm sm:text-base border-2 border-nihonred rounded-lg font-bold" onClick={() => setVisibility((prev) => ({ ...prev, furigana: !prev.furigana }))}>히라가나</button>

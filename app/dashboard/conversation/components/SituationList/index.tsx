@@ -1,4 +1,5 @@
 "use client";
+
 import React from "react";
 import { useRouter } from "next/navigation";
 import classNames from "classnames";
@@ -39,7 +40,7 @@ export default function SituationList({ categoryId, isVisible, situations }: Sit
         <div
           key={situation.situation_id}
           onClick={() => handleClick(situation)}
-          className="px-4 py-2 bg-white text-gray-900 text-lg font-medium rounded-md shadow-md hover:bg-gray-200 cursor-pointer transition-all"
+          className="px-4 py-2 bg-white text-gray-900 text-sm sm:text-base md:text-lg font-medium rounded-md shadow-md hover:bg-gray-200 cursor-pointer transition-all"
         >
           {situation.situation_name}
         </div>

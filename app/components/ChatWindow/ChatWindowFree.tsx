@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import ChatBubble from "../ChatBubble";
@@ -58,7 +59,7 @@ export default function ChatWindowFreeTalk() {
         behavior: "smooth",
       });
     }
-  }, [messages]);
+  }, [messages, isAtBottom]);
 
   const handleSubmit = async (userInput: string) => {
     if (isSending) return;
