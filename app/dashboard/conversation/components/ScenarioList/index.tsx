@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useEffect, useState } from "react";
 import classNames from "classnames";
 import SituationList from "../SituationList";
@@ -34,7 +35,7 @@ export default function ScenarioList() {
 
   return (
     <div
-      className="mt-10 w-full max-w-[1100px] min-w-[1100px] mx-auto flex flex-col items-center"
+      className="w-full flex flex-col items-center"
       onMouseLeave={() => setHoveredCategory(null)}
     >
       <div className="w-full flex flex-col space-y-6">
@@ -43,7 +44,7 @@ export default function ScenarioList() {
             key={category.category_id}
             onMouseEnter={() => setHoveredCategory(category.category_id)}
             className={classNames(
-              "relative w-full text-3xl font-semibold text-white rounded-lg transition-all ease-in-out duration-300 flex flex-col items-start justify-start",
+              "relative w-full text-xl sm:text-2xl md:text-3xl font-semibold text-white rounded-lg transition-all ease-in-out duration-300 flex flex-col items-start justify-start",
               "bg-gradient-to-b from-[#FF6B6B] via-[#FF6E6E] to-[#FF8E8E]",
               "shadow-sm shadow-red-300",
               "before:content-[''] before:absolute before:inset-0 before:rounded-lg before:shadow-inner before:shadow-white/10",
@@ -61,7 +62,6 @@ export default function ScenarioList() {
               {category.category_name}
             </span>
 
-            {/* 상황 목록 전달 */}
             <SituationList
               categoryId={category.category_id}
               isVisible={hoveredCategory === category.category_id}

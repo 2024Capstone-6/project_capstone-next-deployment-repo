@@ -3,6 +3,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useParams } from "next/navigation";
 import ChatBubble from "../ChatBubble";
 import ChatOptions from "../ChatOptions";
+import ChatWindowLayout from "./ChatWindowLayout";
 import { useScenario } from "@/app/hooks/useScenario";
 
 export default function ChatWindow() {
@@ -16,8 +17,30 @@ export default function ChatWindow() {
   }>({});
 
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [isAtBottom, setIsAtBottom] = useState(true);
+
   const showOptions = scenario && currentIndex < scenario.length;
   const isFinished = scenario && currentIndex >= scenario.length;
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const handleScroll = () => {
+      const isBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 5;
+      setIsAtBottom(isBottom);
+    };
+    el.addEventListener("scroll", handleScroll);
+    return () => el.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    if (isAtBottom && scrollRef.current) {
+      scrollRef.current.scrollTo({
+        top: scrollRef.current.scrollHeight,
+        behavior: "smooth",
+      });
+    }
+  }, [currentIndex, answeredMap]);
 
   const handleAnswer = async (selectedChoice: string) => {
     if (!scenario) return;
@@ -58,24 +81,11 @@ export default function ChatWindow() {
     setAnsweredMap({});
   };
 
-  // 자동 스크롤
-  useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTo({
-        top: scrollRef.current.scrollHeight,
-        behavior: "smooth",
-      });
-    }
-  }, [currentIndex, answeredMap]);
-
   return (
-    <div className="relative flex-1 flex flex-col items-center w-full max-h-full overflow-hidden">
-      {/* 채팅 영역 */}
-      <div
-        ref={scrollRef}
-        className="flex-1 w-full overflow-y-auto flex justify-center"
-      >
-        <div className="w-full max-w-[900px] px-4 py-6 space-y-6">
+    <ChatWindowLayout
+      scrollRef={scrollRef}
+      chatContent={
+        <>
           {scenario &&
             scenario.slice(0, currentIndex + 1).map((qna, idx) => {
               const answerData = answeredMap[idx];
@@ -85,7 +95,11 @@ export default function ChatWindow() {
 
               return (
                 <React.Fragment key={qna.qna_id}>
-                  <ChatBubble message={qna.jp_question} jp_mean={qna.kr_question} isUser={false} />
+                  <ChatBubble
+                    message={qna.jp_question}
+                    jp_mean={qna.kr_question}
+                    isUser={false}
+                  />
                   <ChatBubble
                     message={
                       isCorrect
@@ -99,7 +113,6 @@ export default function ChatWindow() {
               );
             })}
 
-          {/* 다시 학습하기 버튼 */}
           {isFinished && (
             <div className="w-full flex justify-center">
               <button
@@ -110,27 +123,23 @@ export default function ChatWindow() {
               </button>
             </div>
           )}
-          <div className="h-[1px]" />
-        </div>
-      </div>
-
-      {/* 선택지 영역 */}
-      {showOptions && (
-        <div className="w-full flex justify-center px-4 pb-3 pt-3">
-          <div className="w-full max-w-[900px]">
-            <ChatOptions
-              choices={scenario[currentIndex].choices}
-              blankAnswer={scenario[currentIndex].blank_answer}
-              onSelect={handleAnswer}
-              feedback={
-                answeredMap[currentIndex] && !answeredMap[currentIndex].correct
-                  ? answeredMap[currentIndex].feedback
-                  : undefined
-              }
-            />
-          </div>
-        </div>
-      )}
-    </div>
+        </>
+      }
+      optionsContent={
+        showOptions ? (
+          <ChatOptions
+            choices={scenario![currentIndex].choices}
+            blankAnswer={scenario![currentIndex].blank_answer}
+            onSelect={handleAnswer}
+            feedback={
+              answeredMap[currentIndex] &&
+              !answeredMap[currentIndex].correct
+                ? answeredMap[currentIndex].feedback
+                : undefined
+            }
+          />
+        ) : undefined
+      }
+    />
   );
 }
