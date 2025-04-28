@@ -1,14 +1,11 @@
-"use client";
-import React from "react";
-import ChatWindow from "../components/ChatWindow";
-import ChatHeader from "../components/ChatHeader";
+import ChatWindowFree from "@/app/components/ChatWindow/ChatWindowFree";
+import ChatHeader from "@/app/components/ChatHeader";
 
 export default function FreeTalkPage() {
   return (
-    <div className="flex flex-col items-center w-full h-full">
+    <div className="flex flex-col h-screen w-full overflow-hidden">
       <ChatHeader />
-      <ChatWindow />
-      {/* 🚀 여기에 나중에 ChatInput 추가 예정 */}
+      <ChatWindowFree />
     </div>
   );
 }

@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import GrammarLayout from "../components/GrammarLayout";
+import customFetch from "@/util/custom-fetch";
 
 interface Grammar {
   grammar_id: number;
@@ -22,20 +23,16 @@ export default function GrammarPage() {
   const [grammars, setGrammars] = useState<Grammar[]>([]);
   const level = decodeURIComponent(levelRaw).replace("JLPT ", "").trim();
 
-  // ✅ 단어 불러오기 + 랜덤 셔플
   const fetchGrammars = async () => {
     try {
-      const response = await fetch("http://localhost:4000/grammars");
-      const data: Grammar[] = await response.json();
-
-      if (level) {
-        const filteredGrammars = data.filter(
-          (grammar) => grammar.grammar_level.trim().toUpperCase() === level.toUpperCase()
-        );
-        setGrammars(shuffleArray(filteredGrammars));
-      }
-    } catch (error) {
-      console.error("오류 발생:", error);
+      const res = await customFetch("/grammars");
+      const data: Grammar[] = await res.json();
+      const filtered = data.filter(
+        (g) => g.grammar_level.trim().toUpperCase() === level.toUpperCase()
+      );
+      setGrammars(shuffleArray(filtered));
+    } catch (e) {
+      console.error("❌ 문법 불러오기 실패:", e);
     }
   };
 
@@ -43,13 +40,10 @@ export default function GrammarPage() {
     fetchGrammars();
   }, [level]);
 
-  const shuffleArray = (array: Grammar[]) => {
-    return array.sort(() => Math.random() - 0.5);
-  };
+  const shuffleArray = (arr: Grammar[]) => arr.sort(() => Math.random() - 0.5);
 
-  // ✅ "다시 학습" 버튼 클릭 시 새로 셔플
   const restartLearning = () => {
-    setGrammars(shuffleArray([...grammars])); // 🔹 기존 단어를 다시 섞음
+    setGrammars(shuffleArray([...grammars]));
   };
 
   return <GrammarLayout grammars={grammars} onRestart={restartLearning} />;
