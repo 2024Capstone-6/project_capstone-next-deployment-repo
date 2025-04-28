@@ -1,14 +1,13 @@
-import { SocketProvider } from "@/app/context/context";
+// import { SocketProvider } from "@/app/context/context";
 import NavBar from "../../components/NavBar";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex h-screen">
-      <NavBar />
-      <div className="flex-1 ml-[85px] xl:ml-64 min-h-screen overflow-y-auto">
-        <SocketProvider>
+      <div className="flex-1 min-h-screen overflow-y-auto">
+        {/* <SocketProvider> */}
           {children}
-        </SocketProvider>
+        {/* </SocketProvider> */}
       </div>
     </div>
   );

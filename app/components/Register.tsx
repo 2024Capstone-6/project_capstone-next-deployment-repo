@@ -57,7 +57,7 @@ export default function Register(){
 
   const signUpHandler= async ()=>{
     const res = await customFetch("/auth/signup",{
-      method:"POST",    
+      method:"POST",
       body: JSON.stringify({
         //"name":name,
         "email":email,"password":password,"name":name})
