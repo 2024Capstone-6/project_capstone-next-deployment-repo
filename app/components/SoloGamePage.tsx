@@ -8,7 +8,7 @@ import { useEffect, useState, useRef } from "react";
 
 export default function SoloGamePage(){
   const router = useRouter();
-  const [question, setQuestion] = useState("dafsf");
+  const [question, setQuestion] = useState("Loading");
   const [choices, setChoices] = useState<string[]>([]);
   const [answer,setAnswer] = useState('')
   const [score, setScore] = useState(456);
@@ -19,7 +19,6 @@ export default function SoloGamePage(){
 
 
   useEffect(() => {
-  
     console.log('문제 출제')
     const question_request = async () =>{
       const res = await customFetch("/api/rooms/solo",
