@@ -8,33 +8,28 @@ interface ChatBubbleProps {
   jp_mean?: string;
   isUser: boolean;
   feedback?: string;
+  showMeaning?: boolean;
 }
 
-export default function ChatBubble({ message, jp_mean, isUser, feedback }: ChatBubbleProps) {
+export default function ChatBubble({
+  message,
+  jp_mean,
+  isUser,
+  feedback,
+  showMeaning,
+}: ChatBubbleProps) {
   return (
-    <div
-      className={classNames("flex items-end space-x-2 w-full", {
-        "justify-end": isUser,
-      })}
-    >
+    <div className={classNames("flex items-end space-x-2 w-full", { "justify-end": isUser })}>
       {!isUser && (
-        <Image
-          src="/navbar/game.png"
-          alt="챗봇"
-          width={32}
-          height={32}
-          className="rounded-full"
-        />
+        <Image src="/navbar/game.png" alt="챗봇" width={32} height={32} className="rounded-full" />
       )}
-
-      <div
-        className={classNames(
-          "px-4 py-2 rounded-xl text-lg break-words max-w-[75%] md:max-w-[65%] lg:max-w-[60%]",
-          isUser ? "bg-nihonred text-white" : "border-2 border-nihonred text-gray-900"
-        )}
-      >
+      <div className={classNames(
+        "px-4 py-2 rounded-xl text-lg break-words",
+        "max-w-[85%] sm:max-w-[75%] md:max-w-[60%] lg:max-w-[55%]",
+        isUser ? "bg-nihonred text-white text-xl" : "border-2 border-nihonred text-gray-900 text-xl"
+      )}>
         <p>{message}</p>
-        {!isUser && (
+        {!isUser && jp_mean && !showMeaning && (
           <>
             <hr className="my-2 border-t border-black opacity-40" />
             <p className="text-base">{jp_mean}</p>
@@ -47,15 +42,8 @@ export default function ChatBubble({ message, jp_mean, isUser, feedback }: ChatB
           </>
         )}
       </div>
-
       {isUser && (
-        <Image
-          src="/navbar/profile.png"
-          alt="유저"
-          width={32}
-          height={32}
-          className="rounded-full"
-        />
+        <Image src="/navbar/profile.png" alt="유저" width={32} height={32} className="rounded-full" />
       )}
     </div>
   );
