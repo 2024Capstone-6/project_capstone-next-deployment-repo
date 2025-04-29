@@ -1,4 +1,5 @@
 "use client";
+import customFetch from "@/util/custom-fetch";
 import { useEffect, useState } from "react";
 
 interface Choice {
@@ -24,7 +25,7 @@ export function useScenario(situationId: number) {
   useEffect(() => {
     const fetchScenario = async () => {
       try {
-        const res = await fetch(`http://localhost:4000/chatbot/questions/${situationId}`);
+        const res = await customFetch(`chatbot/questions/${situationId}`);
         const data: Question[] = await res.json();
         setQuestions(data);
       } catch (error) {

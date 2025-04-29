@@ -1,6 +1,6 @@
 import { Cookies } from "react-cookie";
 
-const BASE_URL = 'http://localhost:4000';
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 const cookies = new Cookies()
 

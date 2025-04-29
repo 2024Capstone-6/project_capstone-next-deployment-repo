@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import classNames from "classnames";
 import SituationList from "../SituationList";
+import customFetch from "@/util/custom-fetch";
 
 interface Situation {
   situation_id: number;
@@ -23,7 +24,7 @@ export default function ScenarioList() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch("http://localhost:4000/chatbot/categories-with-situations");
+        const res = await customFetch("chatbot/categories-with-situations");
         const data = await res.json();
         setCategories(data);
       } catch (err) {

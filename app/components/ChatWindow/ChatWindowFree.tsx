@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import ChatBubble from "../ChatBubble";
 import ChatInput from "../ChatInput";
+import customFetch from "@/util/custom-fetch";
 
 interface Message {
   role: "user" | "bot";
@@ -22,7 +23,7 @@ export default function ChatWindowFreeTalk() {
   useEffect(() => {
     const fetchInitialMessage = async () => {
       try {
-        const res = await fetch("http://localhost:4000/chatbot/start", {
+        const res = await customFetch("chatbot/start", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ situation: situationName }),
@@ -68,7 +69,7 @@ export default function ChatWindowFreeTalk() {
     setIsSending(true);
 
     try {
-      const res = await fetch("http://localhost:4000/chatbot/continue", {
+      const res = await customFetch("chatbot/continue", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userText: userInput }),
