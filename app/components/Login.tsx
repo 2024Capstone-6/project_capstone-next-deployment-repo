@@ -16,7 +16,7 @@ export default function LoginCompo(){
   const router = useRouter()
 
   const LoginHandler =async()=>{
-    const res = await customFetch("/auth/login",{
+    const res = await customFetch("auth/login",{
     method:"POST", 
     body: JSON.stringify({"email": email, "password": password})
   })

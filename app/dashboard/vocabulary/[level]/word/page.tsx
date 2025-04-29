@@ -22,7 +22,7 @@ export default function WordPage() {
 
   const fetchWords = async () => {
     try {
-      const response = await customFetch("/words");
+      const response = await customFetch("words");
       const data: Word[] = await response.json();
 
       if (level) {

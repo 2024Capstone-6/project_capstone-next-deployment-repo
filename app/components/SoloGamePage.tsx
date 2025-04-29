@@ -21,7 +21,7 @@ export default function SoloGamePage(){
   useEffect(() => {
     console.log('문제 출제')
     const question_request = async () =>{
-      const res = await customFetch("/api/rooms/solo",
+      const res = await customFetch("api/rooms/solo",
         {
           method: "GET"
         }
@@ -67,7 +67,7 @@ export default function SoloGamePage(){
   }
 
   const okHandler = async () => {
-    const res = await customFetch("/api/rooms/solo", {
+    const res = await customFetch("api/rooms/solo", {
       method: "GET"
     });
     const data = await res.json();

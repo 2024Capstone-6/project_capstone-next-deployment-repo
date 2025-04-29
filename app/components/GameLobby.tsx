@@ -32,7 +32,7 @@ export default function GameLobby() {
 
     const fetchRooms = async () => {
       try {
-        const res = await customFetch("/api/rooms", {
+        const res = await customFetch("api/rooms", {
           method: "GET"
         });
         if (res.ok) {
@@ -81,7 +81,7 @@ export default function GameLobby() {
     }
 
     try {
-      const res = await customFetch(`/api/rooms/${roomId}`, {
+      const res = await customFetch(`api/rooms/${roomId}`, {
         method: "GET"
       });
 
