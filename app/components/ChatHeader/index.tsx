@@ -3,6 +3,7 @@
 import React from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import ConfirmExitModal from "../FeedbackModal";
+import customFetch from "@/util/custom-fetch";
 
 export default function ChatHeader() {
   const router = useRouter();
@@ -18,7 +19,7 @@ export default function ChatHeader() {
 
   const handleRequestFeedback = async () => {
     try {
-      const res = await fetch("http://localhost:4000/chatbot/feedback", {
+      const res = await customFetch("chatbot/feedback", {
         method: "POST",
       });
       const data = await res.json();

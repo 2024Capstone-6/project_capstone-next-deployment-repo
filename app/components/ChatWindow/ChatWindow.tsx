@@ -5,6 +5,7 @@ import ChatBubble from "../ChatBubble";
 import ChatOptions from "../ChatOptions";
 import ChatWindowLayout from "./ChatWindowLayout";
 import { useScenario } from "@/app/hooks/useScenario";
+import customFetch from "@/util/custom-fetch";
 
 export default function ChatWindow() {
   const { situation } = useParams();
@@ -47,8 +48,8 @@ export default function ChatWindow() {
     const orderIndex = scenario[currentIndex].order_index;
 
     try {
-      const res = await fetch(
-        `http://localhost:4000/chatbot/check-answer/${situation}/${orderIndex}`,
+      const res = await customFetch(
+        `chatbot/check-answer/${situation}/${orderIndex}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
