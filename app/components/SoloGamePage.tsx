@@ -21,7 +21,7 @@ export default function SoloGamePage(){
   useEffect(() => {
     console.log('문제 출제')
     const question_request = async () =>{
-      const res = await customFetch("api/rooms/solo",
+      const res = await customFetch("/api/rooms/solo?JLPTN1",
         {
           method: "GET"
         }
@@ -31,7 +31,6 @@ export default function SoloGamePage(){
       setQuestion(data.word)
       setChoices(shuffledArray)
       setAnswer(data.word_furigana)
-      console.log(data)
     }
     question_request()
     if (intervalRef.current) return;
@@ -71,6 +70,7 @@ export default function SoloGamePage(){
       method: "GET"
     });
     const data = await res.json();
+    console.log('data',data)
     const shuffledArray:string[] = data.word_quiz.sort(() => Math.random() - 0.5);
     setQuestion(data.word);
     setChoices(shuffledArray);
