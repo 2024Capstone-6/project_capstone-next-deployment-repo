@@ -12,7 +12,7 @@
    useEffect(() =>{
      const fetching = async () => {
  
-       const res = await customFetch("/profile",
+       const res = await customFetch("profile",
          {
            method: "GET"
          }
