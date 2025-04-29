@@ -30,7 +30,7 @@ export default function LoginCompo(){
     cookies.set('accessToken',data.accessToken,{path:'/',expires:access_time})
     cookies.set('refreshToken',data.refreshToken,{path:'/',expires:refresh_time})
     console.log(data)
-    router.push('/')
+    router.push('/dashboard/vocabulary')
   }
   else{
     setFailedLogin(true)
