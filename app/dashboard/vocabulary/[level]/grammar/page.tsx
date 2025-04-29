@@ -25,7 +25,7 @@ export default function GrammarPage() {
 
   const fetchGrammars = async () => {
     try {
-      const res = await customFetch("/grammars");
+      const res = await customFetch("grammars");
       const data: Grammar[] = await res.json();
       const filtered = data.filter(
         (g) => g.grammar_level.trim().toUpperCase() === level.toUpperCase()

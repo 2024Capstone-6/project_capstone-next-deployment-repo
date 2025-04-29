@@ -21,13 +21,13 @@ export default function VocabularyBox() {
   const [newBookName,setNewBookName] = useState('')
   
   const fetching = async () => {
-    const word_res = await customFetch("/words/books", {
+    const word_res = await customFetch("words/books", {
       method: 'GET'
     });
     const word_data = await word_res.json();
     setVocabList(word_data);
   
-    const res_grammer = await customFetch("/grammars/books", {
+    const res_grammer = await customFetch("grammars/books", {
         method: 'GET'
       });
       const grammer_data = await res_grammer.json();
@@ -40,7 +40,7 @@ export default function VocabularyBox() {
   const add_word_book = async (showModal:string,name:string)=>{
     if(showModal=='단어장'){
       console.log(name)
-      await customFetch('/words/books',{
+      await customFetch('words/books',{
         method:'POST',
         body:JSON.stringify({wordbook_title:name})
       })
@@ -49,7 +49,7 @@ export default function VocabularyBox() {
 
     else if(showModal=='문법장'){
       console.log(name)
-      await customFetch('/grammars/books',{
+      await customFetch('grammars/books',{
         method:'POST',
         body:JSON.stringify({grammarbook_title:name})
       })
