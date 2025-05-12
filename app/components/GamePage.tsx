@@ -4,11 +4,10 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
+import { useSocket } from "../context/context";
 
 
 export default function GamePage(props:{roomId:string}){
-  // const socket = useSocket();
-  const [socket, setSocket] = useState<Socket | null>(null);
   const router = useRouter();
   const [question, setQuestion] = useState("");
   const [choices, setChoices] = useState([]);
@@ -19,14 +18,10 @@ export default function GamePage(props:{roomId:string}){
     { id: 2, name: "user 2", status: "wrong" },
     { id: 3, name: "user 3", status: "waiting" },
   ]);
+  const socket = useSocket()
 
   useEffect(() => {
     // 타이머 1초씩 줄어드는 로직
-    const newSocket = io("http://localhost:4000", {
-      withCredentials: true,
-    });
-    setSocket(newSocket);
-    
     const interval = setInterval(() => {
       setTimer((prev) => (prev > 0 ? prev - 1 : 0));
     }, 1000);

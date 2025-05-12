@@ -3,11 +3,13 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { io, Socket } from "socket.io-client";
+import { useSocket } from "../context/context";
 
 export default function GameRoom({ roomid }: { roomid: string }) {
   const [players, setPlayers] = useState<string[]>([]);
-  const [socket, setSocket] = useState<Socket | null>(null);
   const router = useRouter();
+
+  const socket = useSocket()
 
   const leaveRoom = () => {
     if (socket) {
@@ -18,16 +20,11 @@ export default function GameRoom({ roomid }: { roomid: string }) {
   };
 
   useEffect(() => {
-    const newSocket = io("http://localhost:4000", {
-      withCredentials: true,
-    });
-    setSocket(newSocket);
+    socket.emit("joinRoom", roomid);
 
-    newSocket.emit("joinRoom", roomid);
-
-    newSocket.on("roomUpdated", (e) => {
+    socket.on("roomUpdated", (e) => {
       setPlayers(e.participants);
-      const myId = newSocket.id;
+      const myId = socket.id;
       if (e.participants.length > 4 && e.participants.includes(myId)) {
         alert("4명이 초과되어 나갑니다.");
         leaveRoom();
@@ -36,8 +33,8 @@ export default function GameRoom({ roomid }: { roomid: string }) {
     });
 
     return () => {
-      newSocket.emit("leaveRoom", roomid);
-      newSocket.disconnect();
+      socket.emit("leaveRoom", roomid);
+      socket.disconnect();
     };
   }, [roomid, router]);
 

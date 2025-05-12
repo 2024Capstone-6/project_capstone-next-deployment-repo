@@ -7,6 +7,7 @@ import customFetch from "@/util/custom-fetch";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Cookies } from "react-cookie";
+import { useSocket } from "../context/context";
 
 const cookies = new Cookies();
 
@@ -24,11 +25,9 @@ export default function GameLobby() {
   const router = useRouter();
   const socketRef = useRef<any>(null);
 
+  const socket = useSocket()
   useEffect(() => {
-    const socket = io("http://localhost:4000", {
-      withCredentials: true,
-    });
-    socketRef.current = socket;
+
 
     const fetchRooms = async () => {
       try {
@@ -94,6 +93,7 @@ export default function GameLobby() {
       alert("서버 오류로 방에 입장할 수 없습니다.");
       return;
     }
+    
 
     router.push(`/dashboard/group-games/${roomId}`);
   };
