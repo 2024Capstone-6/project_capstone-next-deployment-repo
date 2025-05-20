@@ -4,6 +4,7 @@ import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import Modal from "../Modal";
 import Searchbar from "../Searchbar";
+import WordbookListInLearner from "../WordbookListInLearner";
 
 interface Word {
   word_id: number;
@@ -100,10 +101,9 @@ export default function WordLayout({ words, onRestart }: WordLayoutProps) {
             )}
           </div>
 
-          {visibility.workbook && (
-            <div className="absolute right-[-170px] top-0 w-[160px] h-[120px] rounded-lg p-2 flex items-center justify-center border-2 border-nihonred">
-              <p>단어장 추가 박스</p>
-            </div>
+          {/* 북마크 열림 시 단어장 목록 */}
+          {visibility.workbook && wordList[currentIndex] && (
+            <WordbookListInLearner currentId={wordList[currentIndex].word_id} type="word" />
           )}
 
           {/* 버튼 영역 */}
