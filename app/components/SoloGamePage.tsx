@@ -27,6 +27,7 @@ export default function SoloGamePage(){
         }
       )
       const data = await res.json()
+      console.log(data)
       const shuffledArray:string[] = data.word_quiz.sort(() => Math.random() - 0.5);
       setQuestion(data.word)
       setChoices(shuffledArray)

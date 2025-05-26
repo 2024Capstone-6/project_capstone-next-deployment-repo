@@ -1,36 +1,53 @@
-"use client";
+"use client"
+import { createContext, useContext, useEffect, useRef, useState } from 'react';
+import { io, Socket } from 'socket.io-client';
 
-import { createContext, useContext, useEffect, useRef } from "react";
-import { io, Socket } from "socket.io-client";
+type SocketContextType = {
+  socket: Socket | null;
+  isConnected: boolean;
+};
 
-// 타입 정의
-const SocketContext = createContext<Socket | null>(null);
-const url = process.env.NEXT_PUBLIC_BASE_URL
-// Provider 컴포넌트
+const SocketContext = createContext<SocketContextType>({
+  socket: null,
+  isConnected: false,
+});
+
 export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
   const socketRef = useRef<Socket | null>(null);
+  const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
-    const socket = io(`${url}`, {
-      withCredentials: true,
-    });
-    socketRef.current = socket;
+    if (!socketRef.current) {
+      const token = document.cookie
+        .split('; ')
+        .find((c) => c.startsWith('accessToken='))
+        ?.split('=')[1];
 
-    return () => {
-      socket.disconnect();
-    };
+      const socket = io('http://localhost:4000', {
+        auth: { token },
+      });
+
+      socketRef.current = socket;
+
+      socket.on('connect', () => {
+        setIsConnected(true);
+        console.log('✅ 소켓 연결됨:', socket.id);
+      });
+
+      socket.on('disconnect', () => {
+        setIsConnected(false);
+        console.log('❌ 소켓 연결 해제됨');
+      });
+    }
   }, []);
 
   return (
-    <SocketContext.Provider value={socketRef.current}>
+    <SocketContext.Provider
+      value={{ socket: socketRef.current, isConnected }}
+    >
       {children}
     </SocketContext.Provider>
   );
 };
 
-// 커스텀 훅
-export const useSocket = () => {
-  const socket = useContext(SocketContext);
-  if (!socket) throw new Error("useSocket must be used within SocketProvider");
-  return socket;
-};
+export const useSocket = () => useContext(SocketContext);

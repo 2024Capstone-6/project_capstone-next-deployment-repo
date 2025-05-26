@@ -2,41 +2,37 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { io, Socket } from "socket.io-client";
+import { Cookies } from "react-cookie";
 import { useSocket } from "../context/context";
 
 export default function GameRoom({ roomid }: { roomid: string }) {
   const [players, setPlayers] = useState<string[]>([]);
   const router = useRouter();
+  
+    const { socket, isConnected } = useSocket();
 
-  const socket = useSocket()
-
-  const leaveRoom = () => {
-    if (socket) {
-      console.log("leaveRoom 호출");
-      socket.emit("leaveRoom", roomid);
-      socket.disconnect(); // 소켓 종료
-    }
-  };
-
+  
   useEffect(() => {
-    socket.emit("joinRoom", roomid);
+    if (!socket || !isConnected) return;
 
-    socket.on("roomUpdated", (e) => {
+    const handleRoomUpdate = (e: any) => {
+      console.log("roomUpdate", e);
       setPlayers(e.participants);
+
       const myId = socket.id;
       if (e.participants.length > 4 && e.participants.includes(myId)) {
         alert("4명이 초과되어 나갑니다.");
         leaveRoom();
-        router.push("/dashboard/group-games");
       }
-    });
-
-    return () => {
-      socket.emit("leaveRoom", roomid);
-      socket.disconnect();
     };
-  }, [roomid, router]);
+
+    socket.on("roomUpdate", handleRoomUpdate);
+
+    // ✅ 클린업으로 이벤트 제거
+    return () => {
+      socket.off("roomUpdate", handleRoomUpdate);
+    };
+  }, [socket, isConnected]);
 
   const startGame = () => {
     if (socket) {
@@ -44,10 +40,15 @@ export default function GameRoom({ roomid }: { roomid: string }) {
     }
   };
 
-  const leaveRoomActive = () => {
-    leaveRoom();
-    router.push("/dashboard/group-games");
+  const leaveRoom = () => {
+    if (socket) {
+      console.log("leaveRoom 호출");
+      socket.emit("leaveRoom", {roomId:roomid});
+      router.push("/dashboard/game-mode/group-games");
+      // socket.disconnect(); // 소켓 종료
+    }
   };
+  
 
   return (
     <div className="h-screen place-items-center pt-[3%]">
@@ -69,7 +70,7 @@ export default function GameRoom({ roomid }: { roomid: string }) {
         <button onClick={startGame} className="bg-gray-400 text-white px-6 py-2 rounded-md shadow">
           준비완료
         </button>
-        <button onClick={leaveRoomActive} className="bg-gray-400 text-white px-6 py-2 rounded-md shadow">
+        <button onClick={leaveRoom} className="bg-gray-400 text-white px-6 py-2 rounded-md shadow">
           방 나가기
         </button>
       </div>
