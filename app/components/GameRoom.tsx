@@ -12,7 +12,8 @@ type Room = {
   status: string;
   maxParticipants: number;
   readyStatus?: Record<string, boolean>; // ✅ 각 참가자별 준비 상태
-  difficulty:string
+  difficulty:string;
+  totalScore:Record<string, number>;
 };
 
 export default function GameRoom({ roomid }: { roomid: string }) {
@@ -22,6 +23,7 @@ export default function GameRoom({ roomid }: { roomid: string }) {
   const { socket, isConnected } = useSocket();
   const [readyStatus, setReadyStatus] = useState<Record<string, boolean>>({}); // 준비버튼 눌렀는지 보려고ㅎㅎ 
   const [level,setLevel] = useState('')
+  const [totalscores, setTotalScores] = useState<Record<string, number>>({});
 
   // REST fallback: 방 정보 받아오는 함수
   const fetchRoom = async () => {
@@ -92,9 +94,16 @@ export default function GameRoom({ roomid }: { roomid: string }) {
     }
   };
 
+  const handleRoomUpdate = (room: Room) => {
+  setPlayers(room.participants || []);
+  setReadyStatus(room.readyStatus || {});
+  setLevel(room.difficulty);
+  setTotalScores(room.totalScore || {}); // ← 점수 정보도 같이 관리!
+  };
+
   return (
     <div>
-    {isStart?<GamePage roomId={roomid} level={level}></GamePage>:
+    {isStart?<GamePage roomId={roomid} level={level} players={players} totalScores={totalscores}></GamePage>:
     <div className="h-screen place-items-center pt-[3%]">
         <h1 className="text-3xl font-bold text-red-500 mb-6">스피드 퀴즈</h1>
           <div className="w-[80%] min-w-[40rem] h-[60%] bg-gray-300 p-6 rounded-lg shadow-lg">
