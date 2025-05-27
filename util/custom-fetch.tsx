@@ -41,11 +41,14 @@ async function customFetch(url: string, options:any = {}):Promise<Response> {
 // 리프레시토큰 검증 후 엑세스토큰 생성
 async function refreshAccessToken(refreshToken:string) {
   try {
-    const response = await fetch(`${BASE_URL}/auth/refresh`, {
+    const response = await fetch(`${BASE_URL}auth/refresh`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ refreshToken }),
+      body: JSON.stringify( {refreshToken:refreshToken} ),
     });
+    console.log("response : ",response)
+
+    console.log("refresh token : ",refreshToken)
     // 리프레시 토큰 만료
     if (!response.ok) throw new Error('Refresh token expired');
 

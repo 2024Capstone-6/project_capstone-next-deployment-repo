@@ -11,7 +11,7 @@ export default function SoloGamePage(){
   const [question, setQuestion] = useState("Loading");
   const [choices, setChoices] = useState<string[]>([]);
   const [answer,setAnswer] = useState('')
-  const [score, setScore] = useState(456);
+  const [score, setScore] = useState(0);
   const [timer, setTimer] = useState(10);
   const [isModal,setIsModal] = useState('')
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
@@ -27,6 +27,7 @@ export default function SoloGamePage(){
         }
       )
       const data = await res.json()
+      console.log(data)
       const shuffledArray:string[] = data.word_quiz.sort(() => Math.random() - 0.5);
       setQuestion(data.word)
       setChoices(shuffledArray)
@@ -58,7 +59,8 @@ export default function SoloGamePage(){
       clearInterval(intervalRef.current);
     }
     if(answer == choice){
-      setIsModal('정답!')
+      setIsModal(`정답! \n +10점`)
+      setScore(score+10)
     }
     else{
       setIsModal("실패!")
@@ -91,7 +93,7 @@ export default function SoloGamePage(){
     <div className="w-[100%] h-[80%]">
       <div className="w-full flex justify-between items-center bg-red-400 p-4 text-white rounded-md font-bold text-lg">
         <span>JLPT N2</span>
-        <button onClick={()=>{router.push("/")}} className="bg-white text-red-500 px-4 py-2 rounded-md">
+        <button onClick={()=>{router.push("/dashboard/game-mode")}} className="bg-white text-red-500 px-4 py-2 rounded-md">
           나가기
         </button>
       </div>
