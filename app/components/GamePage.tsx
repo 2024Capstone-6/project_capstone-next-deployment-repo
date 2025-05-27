@@ -2,82 +2,142 @@
 
 // import { useSocket } from "@/app/context/context";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { useSocket } from "../context/context";
+import customFetch from "@/util/custom-fetch";
 
 
-export default function GamePage(props:{roomId:string}){
+export default function GamePage(props:any){
+  const productId = props.level
   const router = useRouter();
-  const [question, setQuestion] = useState("");
-  const [choices, setChoices] = useState([]);
-  const [score, setScore] = useState(456);
+  const [question, setQuestion] = useState("Loading");
+  const [choices, setChoices] = useState<string[]>([]);
+  const [answer,setAnswer] = useState('')
+  const [score, setScore] = useState(0);
   const [timer, setTimer] = useState(10);
-  const [players, setPlayers] = useState([
-    { id: 1, name: "user 1", status: "waiting" },
-    { id: 2, name: "user 2", status: "wrong" },
-    { id: 3, name: "user 3", status: "waiting" },
-  ]);
-  const socket = useSocket()
+  const [isModal,setIsModal] = useState('')
+  const intervalRef = useRef<NodeJS.Timeout | null>(null)
+
 
   useEffect(() => {
-    // 타이머 1초씩 줄어드는 로직
-    const interval = setInterval(() => {
+    console.log('문제 출제')
+    const question_request = async () =>{
+      const res = await customFetch(`quiz-game/solo?level=${productId}`,
+        {
+          method: "GET"
+        }
+      )
+      console.log(productId)
+      const data = await res.json()
+      console.log(data)
+      const shuffledArray:string[] = data.word_quiz.sort(() => Math.random() - 0.5);
+      setQuestion(data.word)
+      setChoices(shuffledArray)
+      setAnswer(data.word_furigana)
+    }
+    question_request()
+    if (intervalRef.current) return;
+    setTimer(10)
+    intervalRef.current = setInterval(() => {
       setTimer((prev) => (prev > 0 ? prev - 1 : 0));
     }, 1000);
-    return () => clearInterval(interval);
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
   }, []);
+
+  useEffect(() => {
+    if (timer === 0 && !isModal) {
+      setIsModal("시간 초과!");
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    }
+  }, [timer, isModal]);
+
+  const clickAnswer = (choice:string)=>{
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+    if(answer == choice){
+      setIsModal(`정답! \n +10점`)
+      setScore(score+10)
+    }
+    else{
+      setIsModal("실패!")
+    }
+  }
+
+  const okHandler = async () => {
+    const res = await customFetch(`quiz-game/solo?level=${productId}`, {
+      method: "GET"
+    });
+    const data = await res.json();
+    console.log('data',data)
+    const shuffledArray:string[] = data.word_quiz.sort(() => Math.random() - 0.5);
+    setQuestion(data.word);
+    setChoices(shuffledArray);
+    setAnswer(data.word_furigana)
+    setIsModal("");
+    setTimer(10);
+  
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+    intervalRef.current = setInterval(() => {
+      setTimer((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+  };
 
 
   return(
-    <div className="w-[100%] h-[70%]">
+    <div className="w-[100%] h-[80%]">
       <div className="w-full flex justify-between items-center bg-red-400 p-4 text-white rounded-md font-bold text-lg">
-        <span>JLPT N2</span>
-        <button className="bg-white text-red-500 px-4 py-2 rounded-md">
-          나가기
-        </button>
+        <span>{productId}</span>
       </div>
 
       {/* 문제 박스 */}
-      <div className="w-[100%] min-w-[40rem] h-[100%] bg-white p-6 mt-6 shadow-lg rounded-md text-center">
+      <div className="w-[100%] min-w-[40rem] min-h-[30rem] h-[100%] bg-white p-6 mt-6 shadow-lg rounded-md text-center">
         {/* 타이머 */}
         <div className="flex justify-between items-center mb-4">
           <span className="text-red-500">⏳ {timer}</span>
           <div className="w-full bg-gray-200 h-2 mx-2 rounded-full">
             <div className="bg-red-400 h-2 rounded-full" style={{ width: `${(timer / 10) * 100}%` }}></div>
           </div>
-          <span className="text-red-500">My Score: {score}</span>
+          {/* <span className="text-red-500">My Score: {score}</span> */}
         </div>
         {/* 문제 */}
-        <div>
+        <div className="mt-[10%] mb-[10%]"> 
           <h1 className="text-4xl font-bold text-red-500">{question}</h1>
+        </div>
+              {/* 선택지 */}
+        <div className="grid grid-cols-2 gap-4 mt-6 w-[100%] h-[35%] min-w-[40rem]">
+          {choices.map((choice, index) => (
+            <button onClick={()=>clickAnswer(choice)} key={index} className="bg-white shadow font-jp p-4 rounded-md border border-red-300 text-lg hover:bg-red-400 hover:text-white">
+              {choice}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* 선택지 */}
-      <div className="grid grid-cols-2 gap-4 mt-6 w-[60%] min-w-[40rem]">
-        {choices.map((choice, index) => (
-          <button key={index} className="bg-white shadow p-4 rounded-md border border-red-300 text-lg">
-            {choice}
-          </button>
-        ))}
-      </div>
 
-      {/* 플레이어 상태 */}
-      <div className="flex gap-6 mt-6">
-        {players.map((player) => (
-          <div key={player.id} className="flex flex-col items-center">
-            <div
-              className={`w-10 h-10 flex items-center justify-center rounded-full ${
-                player.status === "wrong" ? "bg-red-500" : "bg-gray-300"
-              }`}
+      {isModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="w-[60%] h-[40%] bg-white p-6 rounded-xl shadow-lg text-center">
+            <h2 className="text-4xl font-bold text-red-500 mt-8 mb-8">{isModal}</h2>
+            <button 
+              className="h-[25%] w-[30%] mt-5 bg-red-400 text-white px-6 py-2 rounded-md"
+              onClick={() => {
+                  okHandler()
+                }
+              }
             >
-              ...
-            </div>
-            <span className="text-sm mt-1">{player.name}</span>
+              확인
+            </button>
           </div>
-        ))}
-      </div>
+        </div>
+      )}
     </div>
   )
 }

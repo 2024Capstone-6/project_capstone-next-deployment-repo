@@ -2,78 +2,124 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Cookies } from "react-cookie";
 import { useSocket } from "../context/context";
+import GamePage from "./GamePage";
+
+type Room = {
+  roomId: string;
+  name: string;
+  participants: string[];
+  status: string;
+  maxParticipants: number;
+  readyStatus?: Record<string, boolean>; // ✅ 각 참가자별 준비 상태
+  difficulty:string
+};
 
 export default function GameRoom({ roomid }: { roomid: string }) {
   const [players, setPlayers] = useState<string[]>([]);
+  const [isStart,setIsStart] = useState(false)
   const router = useRouter();
-  
-    const { socket, isConnected } = useSocket();
+  const { socket, isConnected } = useSocket();
+  const [readyStatus, setReadyStatus] = useState<Record<string, boolean>>({}); // 준비버튼 눌렀는지 보려고ㅎㅎ 
+  const [level,setLevel] = useState('')
 
-  
+  // REST fallback: 방 정보 받아오는 함수
+  const fetchRoom = async () => {
+    try {
+      const res = await fetch(`/api/quiz-game/rooms/${roomid}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      setPlayers(data.participants || []);
+    } catch (e) {
+      // 에러 무시
+    }
+  };
+
   useEffect(() => {
     if (!socket || !isConnected) return;
 
-    const handleRoomUpdate = (e: any) => {
-      console.log("roomUpdate", e);
-      setPlayers(e.participants);
+    // joinRoom emit (방 입장)
+    socket.emit("joinRoom", { roomId: roomid });
 
-      const myId = socket.id;
-      if (e.participants.length > 4 && e.participants.includes(myId)) {
-        alert("4명이 초과되어 나갑니다.");
-        leaveRoom();
-      }
+    // roomUpdate 이벤트 핸들러
+    const handleRoomUpdate = (room: Room) => {
+      setPlayers(room.participants || []);
+      setReadyStatus(room.readyStatus || {});
+      setLevel(room.difficulty)
+      console.log("상태를 잘받는지",room.readyStatus)
     };
-
     socket.on("roomUpdate", handleRoomUpdate);
 
-    // ✅ 클린업으로 이벤트 제거
+    // joinRoom emit 후 일정 시간 내에 roomUpdate가 안 오면 fallback
+    const timeout = setTimeout(fetchRoom, 1000);
+
+    // roomUpdate가 오면 fallback 취소
+    socket.on("roomUpdate", () => {
+      clearTimeout(timeout);
+    });
+
+    // 클린업
     return () => {
       socket.off("roomUpdate", handleRoomUpdate);
+      clearTimeout(timeout);
     };
-  }, [socket, isConnected]);
+  }, [socket, isConnected, roomid]);
+
+  useEffect(() => {
+  if (!socket) return;
+
+  const handleGameStarted = () => {
+    setIsStart(!isStart)
+  };
+
+  socket.on("gameStarted", handleGameStarted);
+
+  return () => {
+    socket.off("gameStarted", handleGameStarted);
+  };
+  }, [socket, router, roomid]);
 
   const startGame = () => {
     if (socket) {
-      socket.emit("startGame", roomid);
+      socket.emit("ready", { roomId: roomid, ready: true });
     }
   };
 
   const leaveRoom = () => {
     if (socket) {
-      console.log("leaveRoom 호출");
-      socket.emit("leaveRoom", {roomId:roomid});
+      socket.emit("leaveRoom", { roomId: roomid });
       router.push("/dashboard/game-mode/group-games");
-      // socket.disconnect(); // 소켓 종료
     }
   };
-  
 
   return (
+    <div>
+    {isStart?<GamePage roomId={roomid} level={level}></GamePage>:
     <div className="h-screen place-items-center pt-[3%]">
-      <h1 className="text-3xl font-bold text-red-500 mb-6">스피드 퀴즈</h1>
-      <div className="w-[80%] min-w-[40rem] h-[60%] bg-gray-300 p-6 rounded-lg shadow-lg">
-        <div className="h-[80%] grid grid-cols-2 gap-4">
-          {players.map((player, index) => (
-            <div
-              key={index}
-              className="h-[100%] bg-white p-4 text-center rounded-md shadow"
-            >
-              {player}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="mt-6 flex gap-4">
-        <button onClick={startGame} className="bg-gray-400 text-white px-6 py-2 rounded-md shadow">
-          준비완료
-        </button>
-        <button onClick={leaveRoom} className="bg-gray-400 text-white px-6 py-2 rounded-md shadow">
-          방 나가기
-        </button>
-      </div>
+        <h1 className="text-3xl font-bold text-red-500 mb-6">스피드 퀴즈</h1>
+          <div className="w-[80%] min-w-[40rem] h-[60%] bg-gray-300 p-6 rounded-lg shadow-lg">
+            <div className="h-[80%] grid grid-cols-2 gap-4">
+              {players.map((player, index) => (
+                <div key={index} className="h-[100%] bg-white p-4 text-center rounded-md shadow flex items-center justify-center">
+                <span>{player}</span>
+                {readyStatus[player] ? (
+                <span style={{ color: 'green', marginLeft: 8, fontWeight: 'bold' }}>
+                    ✔ 준비완료
+                  </span>
+                ) : null}
+              </div>
+            ))}
+          </div>
+          </div>
+          <div className="mt-6 flex gap-4">
+            <button onClick={startGame} className="bg-gray-400 text-white px-6 py-2 rounded-md shadow">
+              준비완료
+            </button>
+            <button onClick={leaveRoom} className="bg-gray-400 text-white px-6 py-2 rounded-md shadow">
+              방 나가기
+            </button>
+          </div>
+        </div>}
     </div>
   );
 }
