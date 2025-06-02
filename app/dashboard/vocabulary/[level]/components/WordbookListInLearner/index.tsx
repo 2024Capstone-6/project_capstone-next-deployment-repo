@@ -4,15 +4,39 @@ import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import customFetch from "@/util/custom-fetch";
 
+// props 타입
 interface WordbookListInLearnerProps {
   currentId: number;
   type: "word" | "grammar";
 }
 
+// 공통 Book 타입
 interface Book {
   id: number;
   title: string;
-  items: number[]; // 포함된 단어/문법 ID 리스트
+  items: number[];
+}
+
+// words/books 응답 타입
+interface RawWordBook {
+  wordbook_id: number;
+  wordbook_title: string;
+  word_middle?: {
+    word?: {
+      word_id: number;
+    };
+  }[];
+}
+
+// grammars/books 응답 타입
+interface RawGrammarBook {
+  grammarbook_id: number;
+  grammarbook_title: string;
+  grammar_middle?: {
+    grammar?: {
+      grammar_id: number;
+    };
+  }[];
 }
 
 export default function WordbookListInLearner({ currentId, type }: WordbookListInLearnerProps) {
@@ -22,7 +46,7 @@ export default function WordbookListInLearner({ currentId, type }: WordbookListI
 
   const [modalState, setModalState] = useState<{
     isOpen: boolean;
-    mode: "add" | "remove";
+    mode: "add" | "remove" | "confirmAdd" | "deleteBook";
     book: Book | null;
   }>({ isOpen: false, mode: "add", book: null });
 
@@ -35,19 +59,29 @@ export default function WordbookListInLearner({ currentId, type }: WordbookListI
 
   const fetchBooks = async () => {
     try {
-      const endpoint = type === "word" ? "words/books" : "grammars/books";
-      const res = await customFetch(endpoint);
-      const data = await res.json();
-
-      const formatted: Book[] = data.map((d: any) => ({
-        id: type === "word" ? d.wordbook_id : d.grammarbook_id,
-        title: type === "word" ? d.wordbook_title : d.grammarbook_title,
-        items: type === "word"
-          ? d.word_middle?.map((wm: any) => wm.word?.word_id) || []
-          : d.grammar_middle?.map((gm: any) => gm.grammar?.grammar_id) || [],
-      }));
-
-      setBooks(formatted);
+      if (type === "word") {
+        const res = await customFetch("words/books");
+        const data: RawWordBook[] = await res.json();
+        const formatted: Book[] = data.map((d) => ({
+          id: d.wordbook_id,
+          title: d.wordbook_title,
+          items: d.word_middle
+            ?.map((wm) => wm.word?.word_id)
+            .filter((id): id is number => id !== undefined) || [],
+        }));
+        setBooks(formatted);
+      } else {
+        const res = await customFetch("grammars/books");
+        const data: RawGrammarBook[] = await res.json();
+        const formatted: Book[] = data.map((d) => ({
+          id: d.grammarbook_id,
+          title: d.grammarbook_title,
+          items: d.grammar_middle
+            ?.map((gm) => gm.grammar?.grammar_id)
+            .filter((id): id is number => id !== undefined) || [],
+        }));
+        setBooks(formatted);
+      }
     } catch (err) {
       console.error("❌ 단어장 불러오기 실패:", err);
     }
@@ -58,6 +92,15 @@ export default function WordbookListInLearner({ currentId, type }: WordbookListI
     setModalState({
       isOpen: true,
       mode: alreadyIncluded ? "remove" : "add",
+      book,
+    });
+  };
+
+  const handleBookRightClick = (e: React.MouseEvent, book: Book) => {
+    e.preventDefault();
+    setModalState({
+      isOpen: true,
+      mode: "deleteBook",
       book,
     });
   };
@@ -81,7 +124,7 @@ export default function WordbookListInLearner({ currentId, type }: WordbookListI
       console.error("❌ 추가 실패:", err);
     } finally {
       setModalState({ isOpen: false, mode: "add", book: null });
-      fetchBooks(); // 상태 최신화
+      fetchBooks();
     }
   };
 
@@ -101,6 +144,21 @@ export default function WordbookListInLearner({ currentId, type }: WordbookListI
     }
   };
 
+  const handleDeleteBook = async (book: Book) => {
+    const endpoint = type === "word"
+      ? `words/books/${book.id}`
+      : `grammars/books/${book.id}`;
+
+    try {
+      await customFetch(endpoint, { method: "DELETE" });
+    } catch (err) {
+      console.error("❌ 단어장 삭제 실패:", err);
+    } finally {
+      setModalState({ isOpen: false, mode: "add", book: null });
+      fetchBooks();
+    }
+  };
+
   const handleCreateBook = async () => {
     if (!newTitle.trim()) return;
 
@@ -113,13 +171,26 @@ export default function WordbookListInLearner({ currentId, type }: WordbookListI
         body: JSON.stringify({ [field]: newTitle }),
       });
 
-      if (!res.ok) return;
+      if (!res.ok) {
+        const errorText = await res.text();
+        alert(errorText);
+        return;
+      }
 
-      setNewTitle("");
-      setCreating(false);
-      fetchBooks();
+      const data = await res.json();
+      const newBook: Book = {
+        id: type === "word" ? data.wordbook_id : data.grammarbook_id,
+        title: type === "word" ? data.wordbook_title : data.grammarbook_title,
+        items: [],
+      };
+
+      setBooks((prev) => [...prev, newBook]);
+      setModalState({ isOpen: true, mode: "confirmAdd", book: newBook });
     } catch (err) {
       console.error("❌ 단어장 생성 오류:", err);
+    } finally {
+      setNewTitle("");
+      setCreating(false);
     }
   };
 
@@ -131,6 +202,7 @@ export default function WordbookListInLearner({ currentId, type }: WordbookListI
             key={book.id}
             className="w-full h-[45px] border-2 border-nihonred rounded-lg flex items-center justify-center text-sm font-bold cursor-pointer hover:bg-red-50"
             onClick={() => handleBookClick(book)}
+            onContextMenu={(e) => handleBookRightClick(e, book)}
           >
             <span className="truncate w-[120px] px-1 text-center" title={book.title}>
               {book.title}
@@ -178,21 +250,29 @@ export default function WordbookListInLearner({ currentId, type }: WordbookListI
         createPortal(
           <div className="fixed inset-0 bg-black/50 z-[9999] flex items-center justify-center">
             <div className="bg-white rounded-lg p-6 w-[300px] text-center space-y-4">
-              <p className="text-lg font-semibold">
+              <p className="text-lg font-semibold break-all">
                 {modalState.mode === "add"
                   ? `"${modalState.book.title}"에 추가할까요?`
-                  : `"${modalState.book.title}"에서 삭제할까요?`}
+                  : modalState.mode === "remove"
+                  ? `"${modalState.book.title}"에서 삭제할까요?`
+                  : modalState.mode === "deleteBook"
+                  ? `"${modalState.book.title}"을 삭제할까요?`
+                  : `"${modalState.book.title}"에 단어를 추가할까요?`}
               </p>
               <div className="flex justify-center gap-3">
                 <button
                   className="px-4 py-2 bg-red-400 text-white rounded font-bold"
-                  onClick={() =>
-                    modalState.mode === "add"
-                      ? handleAdd(modalState.book!)
-                      : handleRemove(modalState.book!)
-                  }
+                  onClick={() => {
+                    if (modalState.mode === "add" || modalState.mode === "confirmAdd") {
+                      handleAdd(modalState.book!);
+                    } else if (modalState.mode === "remove") {
+                      handleRemove(modalState.book!);
+                    } else if (modalState.mode === "deleteBook") {
+                      handleDeleteBook(modalState.book!);
+                    }
+                  }}
                 >
-                  {modalState.mode === "add" ? "추가" : "삭제"}
+                  {modalState.mode === "remove" || modalState.mode === "deleteBook" ? "삭제" : "추가"}
                 </button>
                 <button
                   className="px-4 py-2 bg-gray-300 rounded font-bold"

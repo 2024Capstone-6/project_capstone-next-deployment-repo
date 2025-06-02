@@ -13,6 +13,16 @@ interface Word {
   word_level: string;
 }
 
+interface WordMiddle {
+  word: Word;
+}
+
+interface RawWordbook {
+  wordbook_id: number;
+  wordbook_title: string;
+  word_middle?: WordMiddle[];
+}
+
 export default function WordbookWordPage() {
   const { id } = useParams();
   const [words, setWords] = useState<Word[]>([]);
@@ -21,10 +31,10 @@ export default function WordbookWordPage() {
     const fetchWordbook = async () => {
       try {
         const res = await customFetch("words/books");
-        const data = await res.json();
-        const book = data.find((b: any) => b.wordbook_id === Number(id));
+        const data: RawWordbook[] = await res.json();
+        const book = data.find((b) => b.wordbook_id === Number(id));
         if (book) {
-          const extracted = book.word_middle?.map((wm: any) => wm.word) || [];
+          const extracted = book.word_middle?.map((wm) => wm.word) || [];
           setWords(extracted);
         }
       } catch (e) {

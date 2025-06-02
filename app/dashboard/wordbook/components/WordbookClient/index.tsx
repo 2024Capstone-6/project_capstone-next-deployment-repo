@@ -5,30 +5,53 @@ import WordbookModal from "../WordbookModal";
 import WordbookItem from "../WordbookItem";
 import customFetch from "@/util/custom-fetch";
 
-// 단어장/문법장 타입 공통
+interface WordMiddle {
+  word: {
+    word_id: number;
+  };
+}
+
+interface GrammarMiddle {
+  grammar: {
+    grammar_id: number;
+  };
+}
+
+interface RawWordBook {
+  wordbook_id: number;
+  wordbook_title: string;
+  word_middle?: WordMiddle[];
+}
+
+interface RawGrammarBook {
+  grammarbook_id: number;
+  grammarbook_title: string;
+  grammar_middle?: GrammarMiddle[];
+}
+
 interface Book {
   id: number;
   title: string;
+  items: number[];
+  type: "word" | "grammar";
 }
 
-// 공통 섹션
-interface BookSectionProps {
+const BookSection: React.FC<{
   title: string;
   books: Book[];
   onAdd: () => void;
   onDelete: (id: number) => void;
-}
-
-const BookSection: React.FC<BookSectionProps> = ({ title, books, onAdd, onDelete }) => (
+}> = ({ title, books, onAdd, onDelete }) => (
   <div className="w-full">
     <div className="text-left font-bold text-2xl ml-10 mb-4">{title}</div>
     <div className="w-[1120px] min-h-[148px] max-h-[555px] border-2 border-nihonred rounded-lg flex flex-wrap p-3 gap-4 overflow-y-auto mx-auto">
       {books.map((book) => (
         <WordbookItem
-          key={book.id}
+          key={`${book.type}-${book.id}`}
           id={book.id}
           title={book.title}
-          type={title === "단어장" ? "word" : "grammar"}
+          items={book.items}
+          type={book.type}
           onDelete={() => onDelete(book.id)}
         />
       ))}
@@ -45,7 +68,6 @@ const BookSection: React.FC<BookSectionProps> = ({ title, books, onAdd, onDelete
 export default function WordbookClient() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalTarget, setModalTarget] = useState<"word" | "grammar" | null>(null);
-
   const [wordbooks, setWordbooks] = useState<Book[]>([]);
   const [grammarbooks, setGrammarbooks] = useState<Book[]>([]);
 
@@ -76,6 +98,8 @@ export default function WordbookClient() {
       const newBook: Book = {
         id: modalTarget === "word" ? data.wordbook_id : data.grammarbook_id,
         title: modalTarget === "word" ? data.wordbook_title : data.grammarbook_title,
+        items: [],
+        type: modalTarget,
       };
 
       if (modalTarget === "word") {
@@ -115,36 +139,47 @@ export default function WordbookClient() {
   };
 
   useEffect(() => {
-    const fetchWordbooks = async () => {
+    const fetchBooks = async () => {
       try {
-        const res = await customFetch("words/books");
-        const data = await res.json();
-        const formatted: Book[] = data.map((d: any) => ({
-          id: d.wordbook_id,
-          title: d.wordbook_title,
-        }));
-        setWordbooks(formatted);
+        const wordRes = await customFetch("words/books");
+        const wordData: RawWordBook[] = await wordRes.json();
+
+        setWordbooks(
+          wordData.map((d) => ({
+            id: d.wordbook_id,
+            title: d.wordbook_title,
+            items:
+              d.word_middle
+                ?.map((wm) => wm.word?.word_id)
+                .filter((id): id is number => typeof id === "number") || [],
+            type: "word" as const,
+          }))
+        );
       } catch (err) {
         console.error("❌ 단어장 불러오기 실패:", err);
       }
-    };
 
-    const fetchGrammarbooks = async () => {
       try {
-        const res = await customFetch("grammars/books");
-        const data = await res.json();
-        const formatted: Book[] = data.map((d: any) => ({
-          id: d.grammarbook_id,
-          title: d.grammarbook_title,
-        }));
-        setGrammarbooks(formatted);
+        const grammarRes = await customFetch("grammars/books");
+        const grammarData: RawGrammarBook[] = await grammarRes.json();
+
+        setGrammarbooks(
+          grammarData.map((d) => ({
+            id: d.grammarbook_id,
+            title: d.grammarbook_title,
+            items:
+              d.grammar_middle
+                ?.map((gm) => gm.grammar?.grammar_id)
+                .filter((id): id is number => typeof id === "number") || [],
+            type: "grammar" as const,
+          }))
+        );
       } catch (err) {
         console.error("❌ 문법장 불러오기 실패:", err);
       }
     };
 
-    fetchWordbooks();
-    fetchGrammarbooks();
+    fetchBooks();
   }, []);
 
   return (
@@ -155,9 +190,7 @@ export default function WordbookClient() {
         onAdd={() => openModal("word")}
         onDelete={(id) => handleDeleteBook("word", id)}
       />
-
       <div className="w-full border-t border-nihonred" />
-
       <BookSection
         title="문법장"
         books={grammarbooks}

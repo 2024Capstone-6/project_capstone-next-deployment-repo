@@ -17,6 +17,16 @@ interface Grammar {
   grammar_e_card: string[];
 }
 
+interface GrammarMiddle {
+  grammar: Grammar;
+}
+
+interface RawGrammarbook {
+  grammarbook_id: number;
+  grammarbook_title: string;
+  grammar_middle?: GrammarMiddle[];
+}
+
 export default function WordbookGrammarPage() {
   const { id } = useParams();
   const [grammars, setGrammars] = useState<Grammar[]>([]);
@@ -25,10 +35,10 @@ export default function WordbookGrammarPage() {
     const fetchGrammarbook = async () => {
       try {
         const res = await customFetch("grammars/books");
-        const data = await res.json();
-        const book = data.find((b: any) => b.grammarbook_id === Number(id));
+        const data: RawGrammarbook[] = await res.json();
+        const book = data.find((b) => b.grammarbook_id === Number(id));
         if (book) {
-          const extracted = book.grammar_middle?.map((gm: any) => gm.grammar) || [];
+          const extracted = book.grammar_middle?.map((gm) => gm.grammar) || [];
           setGrammars(extracted);
         }
       } catch (e) {
