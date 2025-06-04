@@ -48,7 +48,6 @@ export default function GameRoom({ roomid }: { roomid: string }) {
       setPlayers(room.participants || []);
       setReadyStatus(room.readyStatus || {});
       setLevel(room.difficulty)
-      console.log("상태를 잘받는지",room.readyStatus)
     };
     socket.on("roomUpdate", handleRoomUpdate);
 
@@ -109,12 +108,10 @@ export default function GameRoom({ roomid }: { roomid: string }) {
           <div className="w-[80%] min-w-[40rem] h-[60%] bg-gray-300 p-6 rounded-lg shadow-lg">
             <div className="h-[80%] grid grid-cols-2 gap-4">
               {players.map((player, index) => (
-                <div key={index} className="h-[100%] bg-white p-4 text-center rounded-md shadow flex items-center justify-center">
-                <span>{player}</span>
+                <div key={index} className={`h-[100%] bg-white p-4 text-center rounded-md shadow flex flex-col items-center items-center justify-center ${readyStatus[player] ? 'bg-green-300' : 'bg-white'}`}>
+                <p className="text-2xl">{player}</p>
                 {readyStatus[player] ? (
-                <span style={{ color: 'green', marginLeft: 8, fontWeight: 'bold' }}>
-                    ✔ 준비완료
-                  </span>
+                <span className="text-green-700 font-bold">✔ 준비완료</span>
                 ) : null}
               </div>
             ))}
