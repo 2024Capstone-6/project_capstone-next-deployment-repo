@@ -2,11 +2,17 @@
 
 import customFetch from "@/util/custom-fetch";
 // import { useSocket } from "@/app/context/context";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
 
+type Params = {
+  level: string;
+};
 
 export default function SoloGamePage(){
+  const params:Params = useParams()
+  const product = params.level
+  const productId = product.replace('T','T ')
   const router = useRouter();
   const [question, setQuestion] = useState("Loading");
   const [choices, setChoices] = useState<string[]>([]);
@@ -17,15 +23,15 @@ export default function SoloGamePage(){
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
 
 
-
   useEffect(() => {
     console.log('문제 출제')
     const question_request = async () =>{
-      const res = await customFetch("api/rooms/solo?JLPTN1",
+      const res = await customFetch(`quiz-game/solo?level=${productId}`,
         {
           method: "GET"
         }
       )
+      console.log(productId)
       const data = await res.json()
       console.log(data)
       const shuffledArray:string[] = data.word_quiz.sort(() => Math.random() - 0.5);
@@ -39,7 +45,6 @@ export default function SoloGamePage(){
     intervalRef.current = setInterval(() => {
       setTimer((prev) => (prev > 0 ? prev - 1 : 0));
     }, 1000);
-    console.log(intervalRef)
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
@@ -68,7 +73,7 @@ export default function SoloGamePage(){
   }
 
   const okHandler = async () => {
-    const res = await customFetch("api/rooms/solo", {
+    const res = await customFetch(`quiz-game/solo?level=${productId}`, {
       method: "GET"
     });
     const data = await res.json();
@@ -92,8 +97,8 @@ export default function SoloGamePage(){
   return(
     <div className="w-[100%] h-[80%]">
       <div className="w-full flex justify-between items-center bg-red-400 p-4 text-white rounded-md font-bold text-lg">
-        <span>JLPT N2</span>
-        <button onClick={()=>{router.push("/dashboard/game-mode")}} className="bg-white text-red-500 px-4 py-2 rounded-md">
+        <span>{productId}</span>
+        <button onClick={()=>{router.push("/dashboard/game-mode/select-level")}} className="bg-white text-red-500 px-4 py-2 rounded-md">
           나가기
         </button>
       </div>
