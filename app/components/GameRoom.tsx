@@ -13,7 +13,7 @@ type Room = {
   maxParticipants: number;
   readyStatus?: Record<string, boolean>; // ✅ 각 참가자별 준비 상태
   difficulty:string;
-  totalScore:Record<string, number>;
+  totalScores:Record<string, number>;
 };
 
 export default function GameRoom({ roomid }: { roomid: string }) {
@@ -48,6 +48,8 @@ export default function GameRoom({ roomid }: { roomid: string }) {
       setPlayers(room.participants || []);
       setReadyStatus(room.readyStatus || {});
       setLevel(room.difficulty)
+      setTotalScores(room.totalScores || {})
+      console.log("방 정보 업데이트:", room);
     };
     socket.on("roomUpdate", handleRoomUpdate);
 
@@ -93,16 +95,14 @@ export default function GameRoom({ roomid }: { roomid: string }) {
     }
   };
 
-  const handleRoomUpdate = (room: Room) => {
-  setPlayers(room.participants || []);
-  setReadyStatus(room.readyStatus || {});
-  setLevel(room.difficulty);
-  setTotalScores(room.totalScore || {}); // ← 점수 정보도 같이 관리!
-  };
+  const startHandlers = () => {
+    setIsStart(!isStart)
+  }
+    
 
   return (
     <div>
-    {isStart?<GamePage roomId={roomid} level={level} players={players} totalScores={totalscores}></GamePage>:
+    {isStart?<GamePage setIsstart={startHandlers} roomId={roomid} level={level} players={players} totalScores={totalscores}></GamePage>:
     <div className="h-screen place-items-center pt-[3%]">
         <h1 className="text-3xl font-bold text-red-500 mb-6">스피드 퀴즈</h1>
           <div className="w-[80%] min-w-[40rem] h-[60%] bg-gray-300 p-6 rounded-lg shadow-lg">

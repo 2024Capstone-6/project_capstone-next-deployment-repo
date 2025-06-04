@@ -9,6 +9,7 @@ interface GamePageProps {
   level: string;
   players: string[];
   totalScores: Record<string, number>;
+  setIsstart: (value: boolean) => void;
 }
 
 export default function GamePage(props: GamePageProps) {
@@ -18,11 +19,13 @@ export default function GamePage(props: GamePageProps) {
   // 게임 상태
   const [question, setQuestion] = useState("Loading...");
   const [choices, setChoices] = useState<string[]>([]);
+  const [shuffledChoices, setShuffledChoices] = useState<string[]>([]);
+  const [correctAnswer, setCorrectAnswer] = useState<string>("");
   const [timer, setTimer] = useState(10);
   const [isModal, setIsModal] = useState<string | null>(null);
   const [round, setRound] = useState(1);
   const [totalRounds, setTotalRounds] = useState(10);
-  const [totalScores, setTotalScores] = useState<Record<string, number>>(props.totalScores || {});
+  // const [totalScores, setTotalScores] = useState<Record<string, number>>(props.totalScores || {});
   const [answered, setAnswered] = useState(false);
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -43,23 +46,27 @@ export default function GamePage(props: GamePageProps) {
 
       setQuestion(data.question);
       setChoices(data.choices);
+      setCorrectAnswer(data.choices[0]); // 0번 인덱스가 정답!
       setRound(data.round);
       setTotalRounds(data.totalRounds);
       setTimer(10);
       setIsModal(null);
       setAnswered(false);
+
+      // 프론트에서만 셔플!
+      const shuffled = [...data.choices].sort(() => Math.random() - 0.5);
+      setShuffledChoices(shuffled);
+
       if (intervalRef.current) clearInterval(intervalRef.current);
-        intervalRef.current = setInterval(() => {
+      intervalRef.current = setInterval(() => {
         setTimer((prev) => (prev > 0 ? prev - 1 : 0));
       }, 1000);
-
-
     };
 
     // 점수 등 방 상태 실시간 갱신
-    const handleRoomUpdate = (room: any) => {
-      setTotalScores(room.totalScores || {});
-    };
+    // const handleRoomUpdate = (room: any) => {
+    //   setTotalScores(room.totalScores || {});
+    // };
 
     // 정답 결과 안내
     const handleAnswerResult = (data: { correct: boolean; totalScore: number; alreadyAnswered?: boolean }) => {
@@ -76,19 +83,28 @@ export default function GamePage(props: GamePageProps) {
     // 게임 종료
     const handleGameOver = (data: { totalScores: Record<string, number> }) => {
       setIsModal(`게임 종료!\n최종 점수:\n${Object.entries(data.totalScores)
-        .map(([user, score]) => `${user}: ${score}점`)
+        .map(([user, totalScore]) => `${user}: ${totalScore}점`)
         .join('\n')}`);
       if (intervalRef.current) clearInterval(intervalRef.current);
+      // 게임 종료 후 3초 후 방 나가기
+      setTimeout(() => {
+        if (socket) {
+          props.setIsstart(false);
+          setAnswered(false);
+          setIsModal(null);
+        }
+      }, 3000);
+      
     };
 
     socket.on("newQuestion", handleNewQuestion);
-    socket.on("roomUpdate", handleRoomUpdate);
+    // socket.on("roomUpdate", handleRoomUpdate);
     socket.on("answerResult", handleAnswerResult);
     socket.on("gameOver", handleGameOver);
 
     return () => {
       socket.off("newQuestion", handleNewQuestion);
-      socket.off("roomUpdate", handleRoomUpdate);
+      // socket.off("roomUpdate", handleRoomUpdate);
       socket.off("answerResult", handleAnswerResult);
       socket.off("gameOver", handleGameOver);
       if (intervalRef.current) clearInterval(intervalRef.current);
@@ -98,7 +114,6 @@ export default function GamePage(props: GamePageProps) {
   // 타이머 0초(시간초과) 처리
   useEffect(() => {
     if (timer === 0 && !isModal) {
-      setIsModal("시간 초과!");
       setAnswered(true);
       if (intervalRef.current) clearInterval(intervalRef.current);
       // 서버에서 자동으로 다음 라운드로 넘어감
@@ -139,7 +154,7 @@ export default function GamePage(props: GamePageProps) {
         </div>
         {/* 선택지 */}
         <div className="grid grid-cols-2 gap-4 mt-6 w-[100%] h-[35%] min-w-[40rem]">
-          {choices.map((choice, index) => (
+          {shuffledChoices.map((choice, index) => (
             <button
               onClick={() => {answered ? '' : clickAnswer(choice)}}
               key={index}
@@ -160,7 +175,7 @@ export default function GamePage(props: GamePageProps) {
             </div>
             <span className="text-sm font-semibold">{player}</span>
             <span className="text-xs text-gray-600 mt-1">
-              점수: {totalScores?.[player] ?? 0}
+              점수: {props.totalScores?.[player] ?? 0}
             </span>
           </div>
         ))}
