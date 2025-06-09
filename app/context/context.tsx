@@ -6,7 +6,7 @@ type SocketContextType = {
   socket: Socket | null;
   isConnected: boolean;
 };
-
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 const SocketContext = createContext<SocketContextType>({
   socket: null,
   isConnected: false,
@@ -23,7 +23,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
         .find((c) => c.startsWith('accessToken='))
         ?.split('=')[1];
 
-      const socket = io('http://localhost:4000', {
+      const socket = io('BASE_URL', {
         auth: { token },
       });
 
