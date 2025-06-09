@@ -30,7 +30,7 @@ async function customFetch(url: string, options:any = {}):Promise<Response> {
       return Promise.reject(new Error('Unauthorized'));
     }
 
-    cookies.set('accessToken', newAccessToken);
+    cookies.set('accessToken', newAccessToken,{path:'/'});
     headers.Authorization = `Bearer ${newAccessToken}`;
     // 최종적으로 내가사용한 URL에 요청 보냄
     response = await fetch(`${BASE_URL}${url}`, { ...options, headers });
