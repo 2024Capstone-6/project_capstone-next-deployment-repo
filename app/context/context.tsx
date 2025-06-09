@@ -23,7 +23,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
         .find((c) => c.startsWith('accessToken='))
         ?.split('=')[1];
 
-      const socket = io('BASE_URL', {
+      const socket = io(`${BASE_URL}`, {
         auth: { token },
       });
 
