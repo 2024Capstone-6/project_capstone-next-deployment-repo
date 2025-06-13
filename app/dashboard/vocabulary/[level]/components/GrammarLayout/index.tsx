@@ -4,6 +4,7 @@ import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import Modal from "../Modal";
 import Searchbar from "../Searchbar";
+import WordbookListInLearner from "../WordbookListInLearner";
 
 interface Grammar {
   grammar_id: number;
@@ -136,10 +137,9 @@ export default function GrammarLayout({ grammars, onRestart }: GrammarLayoutProp
             )}
           </div>
 
-          {visibility.workbook && (
-            <div className="absolute right-[-170px] top-0 w-[160px] h-[120px] rounded-lg p-2 flex items-center justify-center border-2 border-nihonred">
-              <p>단어장 추가 박스</p>
-            </div>
+          {/* 북마크 열림 시 문법장 목록 */}
+          {visibility.workbook && grammarList[currentIndex] && (
+            <WordbookListInLearner currentId={grammarList[currentIndex].grammar_id} type="grammar" />
           )}
 
           <div className="flex flex-wrap justify-between w-full mt-4 gap-2 sm:gap-4">

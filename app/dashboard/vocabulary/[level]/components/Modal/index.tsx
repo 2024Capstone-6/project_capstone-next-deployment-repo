@@ -2,18 +2,37 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
+import customFetch from "@/util/custom-fetch";
 
 interface ModalProps {
   isOpen: boolean;
   onRestart: () => void;
+  level: string;  // level props 추가됨
 }
 
-const Modal: React.FC<ModalProps> = ({ isOpen, onRestart }) => {
+const Modal: React.FC<ModalProps> = ({ isOpen, onRestart, level }) => {
   const router = useRouter();
 
   if (!isOpen) return null;
 
-  const handleGoMain = () => {
+  const resetProgress = async () => {
+    try {
+      await customFetch(
+        `words/reset-progress?learning_level=${encodeURIComponent(level)}`,
+        { method: "DELETE" }
+      );
+    } catch (err) {
+      console.error("❌ 진도 초기화 실패:", err);
+    }
+  };
+
+  const handleRestart = async () => {
+    await resetProgress();
+    onRestart();
+  };
+
+  const handleGoMain = async () => {
+    await resetProgress();
     router.push("/dashboard/vocabulary");
   };
 
@@ -24,7 +43,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onRestart }) => {
         <div className="flex justify-center gap-4">
           <button
             className="px-6 py-2 bg-red-400 text-white rounded-lg font-bold"
-            onClick={onRestart}
+            onClick={handleRestart}
           >
             다시 학습
           </button>
