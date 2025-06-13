@@ -5,6 +5,7 @@ import React, { useEffect, useState } from "react";
 import Modal from "../Modal";
 import Searchbar from "../Searchbar";
 import WordbookListInLearner from "../WordbookListInLearner";
+import customFetch from "@/util/custom-fetch";
 
 interface Word {
   word_id: number;
@@ -16,12 +17,14 @@ interface Word {
 
 interface WordLayoutProps {
   words: Word[];
-  onRestart: () => void;
+  currentIndex: number;
+  level: string;
+  refetch: () => void;
 }
 
-export default function WordLayout({ words, onRestart }: WordLayoutProps) {
+export default function WordLayout({ words, currentIndex: initialIndex, level, refetch }: WordLayoutProps) {
   const [wordList, setWordList] = useState<Word[]>(words);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [visibility, setVisibility] = useState({
     furigana: false,
@@ -36,11 +39,22 @@ export default function WordLayout({ words, onRestart }: WordLayoutProps) {
   useEffect(() => {
     if (words.length > 0) {
       setWordList(words);
-      setCurrentIndex(0);
+      setCurrentIndex(initialIndex);
       setIsModalOpen(false);
       resetVisibility();
     }
-  }, [words]);
+  }, [words, initialIndex]);
+
+  const saveProgress = async (index: number) => {
+    try {
+      await customFetch("words/save-progress", {
+        method: "POST",
+        body: JSON.stringify({ learning_level: level, current_index: index }),
+      });
+    } catch (err) {
+      console.error("❌ 진도 저장 실패:", err);
+    }
+  };
 
   const handleSelectWord = (selectedWordId: number) => {
     setWordList((prevWords) => {
@@ -52,6 +66,7 @@ export default function WordLayout({ words, onRestart }: WordLayoutProps) {
       const insertIndex = selectedWordIndex < currentWordIndex ? currentWordIndex : currentWordIndex + 1;
       newWords.splice(insertIndex, 0, selectedWord);
       setCurrentIndex(insertIndex);
+      saveProgress(insertIndex);
       return newWords;
     });
     resetVisibility();
@@ -59,17 +74,35 @@ export default function WordLayout({ words, onRestart }: WordLayoutProps) {
 
   const handleNextWord = () => {
     if (currentIndex < wordList.length - 1) {
-      setCurrentIndex((prevIndex) => prevIndex + 1);
+      const newIndex = currentIndex + 1;
+      setCurrentIndex(newIndex);
+      saveProgress(newIndex);
       resetVisibility();
     } else {
       setIsModalOpen(true);
     }
   };
 
+  const handleRepeat = async () => {
+    try {
+      await customFetch("words/repeat-word", {
+        method: "PATCH",
+        body: JSON.stringify({ learning_level: level, offset: 10 }),
+      });
+
+      await refetch();
+
+      setTimeout(() => {
+        handleNextWord();
+      }, 100);
+    } catch (e) {
+      console.error("❌ repeat-word 실패:", e);
+    }
+  };
+
   return (
     <div className="w-full min-h-screen overflow-auto flex justify-center px-4 py-6 xl:pt-12">
       <div className="w-full max-w-[1200px] flex flex-col items-center">
-        {/* 검색창 */}
         <div className="w-full max-w-[800px] mb-6">
           <Searchbar
             searchItems={wordList.map((word) => ({
@@ -82,7 +115,6 @@ export default function WordLayout({ words, onRestart }: WordLayoutProps) {
           />
         </div>
 
-        {/* 카드 영역 */}
         <div className="relative w-full max-w-[800px] flex flex-col items-center">
           <div className="w-full min-h-[300px] sm:min-h-[400px] md:min-h-[500px] rounded-lg flex flex-col items-center justify-center border-2 border-nihonred relative px-4 py-6">
             <button
@@ -101,14 +133,12 @@ export default function WordLayout({ words, onRestart }: WordLayoutProps) {
             )}
           </div>
 
-          {/* 북마크 열림 시 단어장 목록 */}
           {visibility.workbook && wordList[currentIndex] && (
             <WordbookListInLearner currentId={wordList[currentIndex].word_id} type="word" />
           )}
 
-          {/* 버튼 영역 */}
           <div className="flex flex-wrap justify-between w-full mt-4 gap-2 sm:gap-4">
-            <button className="flex-1 min-w-[120px] h-[45px] text-sm sm:text-base border-2 border-nihonred rounded-lg font-bold">한번 더</button>
+            <button className="flex-1 min-w-[120px] h-[45px] text-sm sm:text-base border-2 border-nihonred rounded-lg font-bold" onClick={handleRepeat}>한번 더</button>
             <button className="flex-1 min-w-[120px] h-[45px] text-sm sm:text-base bg-red-400 text-white font-bold rounded-lg" onClick={() => setVisibility((prev) => ({ ...prev, mean: !prev.mean }))}>의미</button>
             <button className="flex-1 min-w-[120px] h-[45px] text-sm sm:text-base border-2 border-nihonred rounded-lg font-bold" onClick={() => setVisibility((prev) => ({ ...prev, furigana: !prev.furigana }))}>히라가나</button>
             <button className="flex-1 min-w-[120px] h-[45px] text-sm sm:text-base bg-red-400 text-white font-bold rounded-lg" onClick={handleNextWord}>→</button>
@@ -116,7 +146,7 @@ export default function WordLayout({ words, onRestart }: WordLayoutProps) {
         </div>
       </div>
 
-      <Modal isOpen={isModalOpen} onRestart={onRestart} />
+      <Modal isOpen={isModalOpen} onRestart={refetch} level={level} />
     </div>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
 import WordLayout from "../../../[level]/components/WordLayout";
 import customFetch from "@/util/custom-fetch";
@@ -26,26 +26,36 @@ interface RawWordbook {
 export default function WordbookWordPage() {
   const { id } = useParams();
   const [words, setWords] = useState<Word[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchWordbook = async () => {
-      try {
-        const res = await customFetch("words/books");
-        const data: RawWordbook[] = await res.json();
-        const book = data.find((b) => b.wordbook_id === Number(id));
-        if (book) {
-          const extracted = book.word_middle?.map((wm) => wm.word) || [];
-          setWords(extracted);
-        }
-      } catch (e) {
-        console.error("❌ 단어장 불러오기 실패:", e);
+  const fetchWordbook = useCallback(async () => {
+    try {
+      const res = await customFetch("words/books");
+      const data: RawWordbook[] = await res.json();
+      const book = data.find((b) => b.wordbook_id === Number(id));
+      if (book) {
+        const extracted = book.word_middle?.map((wm) => wm.word) || [];
+        setWords(extracted);
       }
-    };
-    fetchWordbook();
+    } catch (e) {
+      console.error("❌ 단어장 불러오기 실패:", e);
+    } finally {
+      setLoading(false);
+    }
   }, [id]);
 
-  const shuffleArray = (arr: Word[]) => arr.sort(() => Math.random() - 0.5);
-  const restartLearning = () => setWords(shuffleArray([...words]));
+  useEffect(() => {
+    fetchWordbook();
+  }, [fetchWordbook]);
 
-  return <WordLayout words={words} onRestart={restartLearning} />;
+  if (loading) return <div className="w-full text-center mt-20">불러오는 중...</div>;
+
+  return (
+    <WordLayout
+      words={words}
+      currentIndex={0}
+      level={"wordbook"}
+      refetch={fetchWordbook}
+    />
+  );
 }
