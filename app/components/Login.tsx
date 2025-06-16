@@ -80,7 +80,7 @@ export default function LoginCompo(){
         <div className="flex-grow border-t"></div>
       </div>
 
-      <Link className="w-full flex items-center justify-center border p-3 rounded mb-2 font-semibold" href='http://yoajung.store:4000/auth/google'>Google로 시작하기</Link>
+      <Link className="w-full flex items-center justify-center border p-3 rounded mb-2 font-semibold" href='https://yoajung.store/api/auth/google'>Google로 시작하기</Link>
       
       <p className="mt-4 text-sm text-red-500 cursor-pointer text-center" onClick={findHandler}>이메일/비밀번호 찾기</p>
     </div>
