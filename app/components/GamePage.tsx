@@ -27,6 +27,7 @@ export default function GamePage(props: GamePageProps) {
   const [totalRounds, setTotalRounds] = useState(10);
   // const [totalScores, setTotalScores] = useState<Record<string, number>>(props.totalScores || {});
   const [answered, setAnswered] = useState(false);
+  const [select,setSelcet]=useState<string>('')
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -125,6 +126,7 @@ export default function GamePage(props: GamePageProps) {
     if (answered || !socket) return;
     socket.emit("submitAnswer", { roomId: props.roomId, answer: choice });
     setAnswered(true);
+    setSelcet(choice);
   };
 
   // 모달 확인(다음 문제 대기)
@@ -158,7 +160,7 @@ export default function GamePage(props: GamePageProps) {
             <button
               onClick={() => {answered ? '' : clickAnswer(choice)}}
               key={index}
-              className={`bg-white shadow font-jp p-4 rounded-md border border-red-300 text-lg hover:bg-red-400 hover:text-white ${answered ? 'opacity-50 pointer-events-none' : ''}`}
+              className={`shadow font-jp p-4 rounded-md border border-red-300 text-lg hover:bg-red-400 hover:text-white ${choice==select? 'bg-red-400':''} ${answered ? 'opacity-50 pointer-events-none' : ''}`}
             >
               {choice}
             </button>
