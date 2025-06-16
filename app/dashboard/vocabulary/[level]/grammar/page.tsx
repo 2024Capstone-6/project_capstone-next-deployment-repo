@@ -27,8 +27,8 @@ export default function GrammarPage() {
     try {
       const res = await customFetch("grammars");
       const data: Grammar[] = await res.json();
-      const filtered = data.filter((g) =>
-        g.grammar_level?.toLowerCase().includes(level.toLowerCase())
+      const filtered = data.filter(
+        (g) => g.grammar_level.trim().toUpperCase() === level.toUpperCase()
       );
       setGrammars(shuffleArray(filtered));
     } catch (e) {

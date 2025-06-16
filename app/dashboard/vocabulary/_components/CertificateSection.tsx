@@ -41,7 +41,7 @@ export default function CertificateSection({ certificates }: Props) {
           onMouseLeave={() => setHoveredIndex(null)}
         >
           <span
-            className={`absolute text-white text-xl xl:text-3xl font-bold select-none transition-opacity duration-300
+            className={`absolute text-white text-xl xl:text-2xl font-bold select-none transition-opacity duration-300
               ${hoveredIndex === index ? "opacity-0" : "opacity-100"}`}
           >
             {certificate.category}
