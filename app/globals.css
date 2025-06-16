@@ -24,4 +24,7 @@
   .profile-card {
     @apply w-56 bg-red-300 p-3 rounded-lg text-start hover:shadow-lg transition-all duration-300 flex flex-col;
   }
+  .logout-card {
+  @apply w-56 p-3 rounded-lg hover:bg-white/70 hover:text-red-500  hover:shadow-lg transition-all duration-300 flex flex-col;
+  }
 }
