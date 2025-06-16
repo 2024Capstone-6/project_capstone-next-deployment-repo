@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import classNames from "classnames";
 import { useEffect, useState } from "react";
 import customFetch from "@/util/custom-fetch";
+import { Cookies } from "react-cookie"
 
 const navItems = [
   { name: "단어/문법", path: "/dashboard/vocabulary", icon: "/navbar/book.png" },
@@ -19,6 +20,7 @@ interface userProfile {
   email: string;
   uuid : string;
 }
+const cookies = new Cookies()
 
 export default function NavBar() {
   const currentPath = usePathname(); // 현재 경로 가져오기
@@ -38,8 +40,14 @@ export default function NavBar() {
   }, []);
 
 
+  const handleLogout = () => {
+    // 쿠키 삭제 구현
+    cookies.remove('accessToken', { path: '/' });
+    cookies.remove('refreshToken', { path: '/' });
+    alert("로그아웃 되었습니다.");
+  };
   return (
-    <div className="fixed top-0 left-0 h-screen bg-gradient-to-tr from-[#FF4D4D] via-[#FF6B6B] to-[#FF8E8E] text-white flex flex-col justify-between w-[87px] xl:w-64 transition-all duration-300 rounded-r-2xl shadow-2xl shadow-[#a03e3e]/50">
+    <div className="fixed top-0 left-0 h-screen bg-gradient-to-tr from-[#FF4D4D] via-[#FF6B6B] to-[#FF8E8E] text-white flex flex-col w-[87px] xl:w-64 transition-all duration-300 rounded-r-2xl shadow-2xl shadow-[#a03e3e]/50">
       <nav className="ml-7 pt-8">
         {/* 로고 */}
         <Link href="/dashboard/vocabulary" className="flex items-center space-x-3 text-white font-bold text-2xl transition-all duration-300">
@@ -73,7 +81,7 @@ export default function NavBar() {
       </nav>
 
       {/* 미니 프로필 (xl 이하에서 숨김) */}
-      <div className="hidden xl:flex p-3 mb-7 ml-0.5">
+      <div className="absolute bottom-[13%] hidden xl:flex p-3 ml-0.5">
         <Link href="/dashboard/profile">
           <div className="profile-card">
             <div className="flex items-center">
@@ -81,6 +89,15 @@ export default function NavBar() {
               <p className="font-bold ml-1">{user?.name}</p>
             </div>
             <p className="text-sm mt-1 ml-1">{user?.email}</p>
+          </div>
+        </Link>
+      </div>
+      <div onClick={handleLogout} className="absolute bottom-[3%] hidden xl:flex p-3 mb-7 ml-0.5">
+        <Link href="/login">
+          <div className="logout-card">
+            <div className="text-center">
+              <p className="font-bold ml-1">로그아웃</p>
+            </div>
           </div>
         </Link>
       </div>

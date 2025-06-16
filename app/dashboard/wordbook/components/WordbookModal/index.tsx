@@ -1,5 +1,7 @@
 "use client";
-import React, { useState } from "react";
+
+import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 
 interface WordbookModalProps {
   isOpen: boolean;
@@ -8,25 +10,29 @@ interface WordbookModalProps {
 }
 
 const WordbookModal: React.FC<WordbookModalProps> = ({ isOpen, onClose, onCreate }) => {
+  const [mounted, setMounted] = useState(false);
   const [title, setTitle] = useState("");
 
-  // 모달이 닫힐 때 입력값 초기화
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const handleClose = () => {
-    setTitle(""); // 입력값 초기화
+    setTitle("");
     onClose();
   };
 
   const handleCreate = () => {
     if (title.trim() === "") return;
     onCreate(title);
-    setTitle(""); // 생성 후 입력값 초기화
+    setTitle("");
     onClose();
   };
 
-  if (!isOpen) return null;
+  if (!mounted || !isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] bg-black/50 flex items-center justify-center">
       <div className="bg-white p-2 px-5 pl-3 rounded-lg shadow-lg text-center">
         <h2 className="text-xl font-bold mb-4">단어장 추가</h2>
         <input
@@ -45,7 +51,8 @@ const WordbookModal: React.FC<WordbookModalProps> = ({ isOpen, onClose, onCreate
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

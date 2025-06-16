@@ -25,7 +25,6 @@ export default function ChatWindowFreeTalk() {
       try {
         const res = await customFetch("chatbot/start", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ situation: situationName }),
         });
         const data = await res.json();
@@ -38,40 +37,31 @@ export default function ChatWindowFreeTalk() {
     if (situationName) fetchInitialMessage();
   }, [situationName]);
 
-  // 스크롤 감지
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
-
     const handleScroll = () => {
       const isBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 5;
       setIsAtBottom(isBottom);
     };
-
     el.addEventListener("scroll", handleScroll);
     return () => el.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // 조건부 자동 스크롤
   useEffect(() => {
     if (isAtBottom && scrollRef.current) {
-      scrollRef.current.scrollTo({
-        top: scrollRef.current.scrollHeight,
-        behavior: "smooth",
-      });
+      scrollRef.current.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
     }
   }, [messages, isAtBottom]);
 
   const handleSubmit = async (userInput: string) => {
     if (isSending) return;
-
     setMessages((prev) => [...prev, { role: "user", text: userInput }]);
     setIsSending(true);
 
     try {
       const res = await customFetch("chatbot/continue", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userText: userInput }),
       });
       const data = await res.json();
@@ -85,10 +75,7 @@ export default function ChatWindowFreeTalk() {
 
   return (
     <div className="relative flex-1 flex flex-col items-center w-full max-h-full overflow-hidden">
-      <div
-        ref={scrollRef}
-        className="flex-1 w-full overflow-y-auto flex justify-center"
-      >
+      <div ref={scrollRef} className="flex-1 w-full overflow-y-auto flex justify-center">
         <div className="w-full max-w-[900px] px-4 py-6 space-y-6">
           {messages.map((msg, idx) => (
             <ChatBubble
