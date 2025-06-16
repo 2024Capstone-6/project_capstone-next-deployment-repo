@@ -1,15 +1,22 @@
 "use client";
 
 import React, { useState } from "react";
-import { Mic, CornerUpRight } from "lucide-react";
+import { CornerUpRight, Mic } from "lucide-react";
 
 interface ChatInputProps {
   onSubmit: (text: string) => void;
   isSending: boolean;
 }
 
+const predefinedTexts = [
+  "はい、どうぞ。",
+  "すみません、まだ確認していません。",
+];
+
 export default function ChatInput({ onSubmit, isSending }: ChatInputProps) {
   const [text, setText] = useState("");
+  const [recordStep, setRecordStep] = useState(0);
+  const [voiceIndex, setVoiceIndex] = useState(0);
 
   const handleSend = () => {
     const trimmed = text.trim();
@@ -23,6 +30,18 @@ export default function ChatInput({ onSubmit, isSending }: ChatInputProps) {
     if (e.key === "Enter") {
       e.preventDefault();
       handleSend();
+    }
+  };
+
+  const handleFakeVoiceClick = () => {
+    if (isSending) return;
+    if (recordStep === 0) {
+      setRecordStep(1); // 녹음 시작 상태
+    } else {
+      const fakeText = predefinedTexts[voiceIndex] || "（・・・）";
+      onSubmit(fakeText);
+      setVoiceIndex((prev) => prev + 1);
+      setRecordStep(0); // 녹음 종료 상태
     }
   };
 
@@ -40,7 +59,10 @@ export default function ChatInput({ onSubmit, isSending }: ChatInputProps) {
         />
         <div className="flex items-center gap-2 ml-2">
           <button
-            className="bg-nihonred text-white p-2 rounded-full hover:bg-red-500 transition-all"
+            onClick={handleFakeVoiceClick}
+            className={`p-2 rounded-full transition-all ${
+              recordStep === 1 ? "bg-red-500 text-white" : "bg-nihonred text-white hover:bg-red-500"
+            }`}
             disabled={isSending}
           >
             <Mic size={18} />
