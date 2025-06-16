@@ -3,6 +3,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import classNames from "classnames";
+import { useEffect, useState } from "react";
+import customFetch from "@/util/custom-fetch";
 import { Cookies } from "react-cookie"
 
 const navItems = [
@@ -13,10 +15,30 @@ const navItems = [
   { name: "프로필", path: "/dashboard/profile", icon: "/navbar/profile.png", isProfile: true },
 ];
 
+interface userProfile {
+  name: string;
+  email: string;
+  uuid : string;
+}
 const cookies = new Cookies()
 
 export default function NavBar() {
   const currentPath = usePathname(); // 현재 경로 가져오기
+  const [user, setUser] = useState<userProfile>();
+
+  const getUser =async()=>{
+    const res = await customFetch("profile",{
+    method:"GET", 
+  })
+  if(res.ok){
+    const data = await res.json()
+    setUser(data)
+    }
+}
+  useEffect(() => {
+    getUser()
+  }, []);
+
 
   const handleLogout = () => {
     // 쿠키 삭제 구현
@@ -64,9 +86,9 @@ export default function NavBar() {
           <div className="profile-card">
             <div className="flex items-center">
               <Image src="/navbar/profile.png" alt="프로필 아이콘" width={40} height={40} priority />
-              <p className="font-bold ml-1">박유진</p>
+              <p className="font-bold ml-1">{user?.name}</p>
             </div>
-            <p className="text-sm mt-1 ml-1">dbwls437711@naver.com</p>
+            <p className="text-sm mt-1 ml-1">{user?.email}</p>
           </div>
         </Link>
       </div>
