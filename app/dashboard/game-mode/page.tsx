@@ -16,7 +16,7 @@ export default function GameMainLobby() {
         {/* 그룹게임 */}
         <Link href='./game-mode/group-games'>
           <div className="w-[400px] h-[550px] border-[2px] border-black rounded-lg flex items-center justify-center hover:bg-red-500 hover:border-red-500 transition hover:text-white">
-            <span className="text-xl font-bold">멀티모드(개발중)</span>
+            <span className="text-xl font-bold">멀티모드</span>
           </div>
         </Link>
       </div>
