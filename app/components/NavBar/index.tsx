@@ -80,27 +80,25 @@ export default function NavBar() {
         </ul>
       </nav>
 
-      {/* 미니 프로필 (xl 이하에서 숨김) */}
-      <div className="absolute bottom-[13%] hidden xl:flex p-3 ml-0.5">
-        <Link href="/dashboard/profile">
-          <div className="profile-card">
-            <div className="flex items-center">
-              <Image src="/navbar/profile.png" alt="프로필 아이콘" width={40} height={40} priority />
-              <p className="font-bold ml-1">{user?.name}</p>
-            </div>
-            <p className="text-sm mt-1 ml-1">{user?.email}</p>
-          </div>
-        </Link>
+<div className="absolute bottom-0 hidden xl:flex flex-col items-start gap-4 p-3 ml-0.5 mb-4">
+  {/* 미니 프로필 */}
+  <Link href="/dashboard/profile">
+    <div className="profile-card">
+      <div className="flex items-center">
+        <Image src="/navbar/profile.png" alt="프로필 아이콘" width={40} height={40} priority />
+        <p className="font-bold ml-1">{user?.name}</p>
       </div>
-      <div onClick={handleLogout} className="absolute bottom-[3%] hidden xl:flex p-3 mb-7 ml-0.5">
-        <Link href="/login">
-          <div className="logout-card">
-            <div className="text-center">
-              <p className="font-bold ml-1">로그아웃</p>
-            </div>
-          </div>
-        </Link>
-      </div>
+      <p className="text-sm mt-1 ml-1">{user?.email}</p>
+    </div>
+  </Link>
+
+  {/* 로그아웃 */}
+  <Link href="/login" onClick={handleLogout}>
+    <div className="logout-card cursor-pointer">
+      <p className="font-bold ml-1">로그아웃</p>
+    </div>
+  </Link>
+</div>
     </div>
   );
 }
