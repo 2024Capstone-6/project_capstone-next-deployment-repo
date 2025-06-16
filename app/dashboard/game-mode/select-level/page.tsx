@@ -6,11 +6,11 @@ interface Certificate {
 
 export default function SelectLevel(){
 
-
+  const url = `${process.env.NEXT_PUBLIC_FE_BASE_URL}dashboard/game-mode/solo-game`
   const certificates: Certificate[] = [
-    { category: "JLPT", levels: ["JLPT N1", "JLPT N2", "JLPT N3", "JLPT N4", "JLPT N5"] },
-    { category: "JPT", levels: ["JPT 950", "JPT 850", "JPT 750", "JPT 650", "JPT 550"] },
-    { category: "BJT", levels: ["BJT J1+", "BJT J1", "BJT J2", "BJT J3", "BJT J4"] },
+    { category: "JLPT", levels: ["JLPTN1", "JLPTN2", "JLPTN3", "JLPTN4", "JLPTN5"] },
+    { category: "JPT", levels: ["JPT950", "JPT850", "JPT750", "JPT650", "JPT550"] },
+    { category: "BJT", levels: ["BJTJ1+", "BJTJ1", "BJTJ2", "BJTJ3", "BJTJ4"] },
   ];
 
   return(
@@ -36,7 +36,7 @@ export default function SelectLevel(){
                   text-center font-semibold cursor-pointer transition-all duration-300 overflow-hidden group
                   bg-white shadow-md hover:shadow-xl hover:scale-[1.05]">
                   {/* 기본 상태 (자격증 단계) */}
-                    <a className="w-[100%] h-[100%] flex items-center justify-center" href="http://localhost:3000/dashboard/game-mode/solo-game">
+                    <a className="w-[100%] h-[100%] flex items-center justify-center" href={`${url}/${level}`}>
                       <span className="text-gray-800">{level}</span>
                     </a>
                 </div>

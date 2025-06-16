@@ -27,7 +27,7 @@ async function customFetch(url: string, options: any = {}): Promise<Response> {
     const newAccessToken = await refreshAccessToken(refreshToken);
     if (!newAccessToken) return Promise.reject(new Error("Unauthorized"));
 
-    cookies.set("accessToken", newAccessToken);
+    cookies.set('accessToken', newAccessToken,{path:'/'});
     headers.Authorization = `Bearer ${newAccessToken}`;
 
     response = await fetch(`${BASE_URL}${url}`, {
@@ -43,12 +43,10 @@ async function customFetch(url: string, options: any = {}): Promise<Response> {
 async function refreshAccessToken(refreshToken: string) {
   try {
     const response = await fetch(`${BASE_URL}auth/refresh`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ refreshToken }),
-      credentials: "include", // ✅ 쿠키 포함
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify( {refreshToken:refreshToken} ),
     });
-
     if (!response.ok) throw new Error("Refresh token expired");
     const data = await response.json();
     return data.accessToken;
